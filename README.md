@@ -1,82 +1,47 @@
-\# AI Customer Support \& Ticket Automation Platform
+# AI Customer Support & Ticket Automation Platform
 
+An AI-assisted customer support platform designed to help
+support teams classify, prioritize, investigate and respond
+to customer tickets.
 
+## Tech Stack
 
-\## Problem
+### Frontend
+- React
+- TypeScript
+- Vite
 
+### Backend
+- Python
+- FastAPI
 
+### Database
+- PostgreSQL
 
-Companies receive large volumes of customer support
+### AI
+- LLM
+- RAG
+- Vector Search
+- AI Agents
 
-requests. Support teams spend significant time manually
+### Infrastructure
+- Docker
+- Redis
+- GitHub Actions
 
-classifying tickets, searching documentation, investigating
+## Current Status
 
-customer issues and writing repetitive responses.
+🚧 Under active development
 
+## Architecture
 
+See `/docs/architecture.md`.
 
-\## Solution
+## Development
 
+Frontend:
 
-
-An AI-assisted customer support platform that helps support
-
-teams classify, prioritize, understand and respond to
-
-customer tickets while keeping humans in control of
-
-important actions.
-
-
-
-\## Users
-
-
-
-\- Customer
-
-\- Support Agent
-
-\- Manager
-
-\- Admin
-
-
-
-\## Core Features
-
-
-
-\- Authentication
-
-\- Organization management
-
-\- Ticket management
-
-\- Ticket messaging
-
-\- Ticket assignment
-
-\- AI classification
-
-\- AI priority detection
-
-\- AI sentiment analysis
-
-\- AI summarization
-
-\- AI response generation
-
-\- Knowledge base
-
-\- RAG
-
-\- AI agents
-
-\- Human approval
-
-\- Analytics
-
-\- Audit logs
-
+```bash
+cd frontend
+npm install
+npm run dev

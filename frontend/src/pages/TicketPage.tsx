@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { Link } from "react-router";
 import { getTickets } from "../services/ticketService";
 import type { Ticket } from "../types/ticket";
 
@@ -49,7 +49,11 @@ export default function TicketPage() {
 
       <div className="ticket-list">
         {tickets.map((ticket) => (
-          <div key={ticket.id} className="ticket-card">
+          <Link
+            to={`/tickets/${ticket.id}`}
+            key={ticket.id}
+            className="ticket-card"
+          >
             <div>
               <h3>{ticket.subject}</h3>
               <p>{ticket.description}</p>
@@ -58,7 +62,7 @@ export default function TicketPage() {
               <span>{ticket.status}</span>
               <span>{ticket.priority}</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

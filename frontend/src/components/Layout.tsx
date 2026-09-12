@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { NavLink } from "react-router";
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,11 +11,11 @@ export default function Layout({ children }: LayoutProps) {
       <aside className="sidebar">
         <div className="logo">AI Support</div>
         <nav>
-          <a href="/">Dashboard</a>
-          <a href="/tickets">Tickets</a>
-          <a href="/cutomers">Customers</a>
-          <a href="/knowledge">Knowledge</a>
-          <a href="/analytics">Analytics</a>
+          <NavLink to="/">Dashboard</NavLink>
+          <NavLink to="/tickets">Tickets</NavLink>
+          <NavLink to="/cutomers">Customers</NavLink>
+          <NavLink to="/knowledge">Knowledge</NavLink>
+          <NavLink to="/analytics">Analytics</NavLink>
         </nav>
       </aside>
       <main className="main-content">{children}</main>

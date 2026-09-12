@@ -1,12 +1,7 @@
-import Layout from "./components/Layout";
-import DashboardPage from "./pages/DashboardPage";
+import AppRoutes from "./AppRoutes";
 
 function App() {
-  return (
-    <Layout>
-      <DashboardPage />
-    </Layout>
-  );
+  return <AppRoutes />;
 }
 
 export default App;

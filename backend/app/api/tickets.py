@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends,HTTPException,status
+from app.core.exceptions import InvalidTicketTransitionError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_db
@@ -47,12 +48,18 @@ async def get_ticket(ticket_id:UUID,organization_id:UUID,db:AsyncSession = Depen
 
 @router.patch("/{ticket_id}",response_model=TicketResponse)
 async def update_ticket(ticket_id:UUID,organization_id:UUID,data:TicketUpdate,db:AsyncSession=Depends(get_db)):
-    ticket = await service.get_by_id(db,ticket_id,organization_id)
+    try:
+        ticket = await service.get_by_id(db,ticket_id,organization_id)
 
-    if ticket is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Ticket not found")
+        if ticket is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Ticket not found")
 
-    return await service.update(db,ticket,data)
+        return await service.update(db,ticket,data)
+    except InvalidTicketTransitionError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        )
 
 @router.get(
     "",

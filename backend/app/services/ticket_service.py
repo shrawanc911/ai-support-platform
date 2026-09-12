@@ -8,6 +8,13 @@ from app.models.organization import Organization
 from app.models.ticket import (Ticket,TicketStatus,TicketPriority)
 from app.models.user import User
 from app.schemas.ticket import TicketCreate, TicketUpdate
+from app.models.ticket_message import (
+    MessageType,
+    TicketMessage,
+)
+
+from app.core.exceptions import InvalidTicketTransitionError
+from app.services.ticket_workflow import validate_status_transition
 
 class TicketService:
     async def create(self, db:AsyncSession,data: TicketCreate) -> Ticket:
@@ -49,8 +56,21 @@ class TicketService:
         )
 
     async def update(self,db:AsyncSession,ticket:Ticket,data:TicketUpdate) -> Ticket :
-        if data.status is not None:
+        old_status = ticket.status
+        if data.status is not None and old_status != data.status:
+            validate_status_transition(current_status=ticket.status,new_status=data.status)
             ticket.status = data.status
+            system_message = TicketMessage(
+                ticket_id=ticket.id,
+                sender_id=None,
+                message_type=MessageType.SYSTEM,
+                content=(
+                    f"Ticket status changed from "
+                    f"{old_status.value} to "
+                    f"{data.status.value}."
+                )
+            )
+            db.add(system_message)
 
         if data.priority is not None:
             ticket.priority = data.priority

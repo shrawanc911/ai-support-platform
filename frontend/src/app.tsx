@@ -1,9 +1,11 @@
+import Layout from "./components/Layout";
+import DashboardPage from "./pages/DashboardPage";
+
 function App() {
   return (
-    <div>
-      <h1>AI Support Platform</h1>
-      <p>Customer support automation powered by AI.</p>
-    </div>
+    <Layout>
+      <DashboardPage />
+    </Layout>
   );
 }
 

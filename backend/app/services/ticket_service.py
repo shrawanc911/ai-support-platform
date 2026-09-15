@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select , func
+from sqlalchemy import select , func , or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -81,31 +81,59 @@ class TicketService:
         return ticket
 
     async def list(
-            self,db:AsyncSession,
+            self,
+            db:AsyncSession,
             organization_id:UUID,
             page:int=1,
             limit:int=20,
             status:TicketStatus|None = None,
-            priority: TicketPriority | None = None
+            priority: TicketPriority | None = None,
+            search : str | None = None
     )-> tuple[list[Ticket],int]:
-        query = select(Ticket).where(Ticket.organization_id == organization_id)
-        count_query = select(func.count()).select_from(Ticket).where(Ticket.organization_id==organization_id)
 
+        # Base filters
+        filters = [Ticket.organization_id == organization_id]
+
+        # Status filter
         if status is not None:
-            query = query.where(Ticket.status==status)
-            count_query = count_query.where(Ticket.status==status)
+            filters.append(Ticket.status == status)
 
+        # Priority filter
         if priority is not None:
-            query = query.where(Ticket.priority == priority)
-            count_query = count_query.where(Ticket.priority==priority)
+            filters.append(Ticket.priority == priority)
 
-        total = await db.scalar(count_query)
-        offset = (page-1) * limit
+        # Search filter
+        if search:
+            search_pattern = f"%{search.strip()}%"
+
+            filters.append(
+                or_(
+                    Ticket.subject.ilike(search_pattern),
+                    Ticket.description.ilike(search_pattern),
+                )
+            )
+
+        # Main query
         query = (
-            query.
-            order_by(Ticket.created_at.desc()).
-            offset(offset).
-            limit(limit)
+            select(Ticket)
+            .where(*filters)
+            .order_by(Ticket.created_at.desc())
+            .offset((page - 1) * limit)
+            .limit(limit)
         )
+
+         # Count query
+        count_query = (
+            select(func.count(Ticket.id))
+            .where(*filters)
+        )
+
+        # Execute count
+        total = await db.scalar(count_query)
+
+        # Execute tickets query
         result = await db.scalars(query)
-        return list(result.all()), total or 0
+
+        tickets = result.all()
+
+        return list(tickets), total or 0

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends,HTTPException,status
+from fastapi import APIRouter, Depends,HTTPException,status , Query
 from app.core.exceptions import InvalidTicketTransitionError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -71,6 +71,7 @@ async def list_tickets(
     limit:int = 20,
     status: TicketStatus | None = None,
     priority: TicketPriority | None = None,
+    search: str|None = Query(default=None,max_length=200),
     db:AsyncSession = Depends(get_db)
 ) -> TicketListResponse:
     if page < 1:
@@ -85,7 +86,7 @@ async def list_tickets(
             detail="Limit must be between 1 and 100"
         )
 
-    tickets,total = await service.list(db,organization_id,page,limit,status,priority)
+    tickets,total = await service.list(db,organization_id,page,limit,status,priority,search)
     pages = (total + limit - 1) // limit
 
     return {

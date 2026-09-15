@@ -12,6 +12,7 @@ interface GetTicketsParams {
   limit?: number;
   status?: TicketStatus;
   priority?: TicketPriority;
+  search?: string;
 }
 
 export async function getTickets(
@@ -35,6 +36,10 @@ export async function getTickets(
 
   if (params.priority) {
     searchParams.set("priority", params.priority);
+  }
+
+  if (params.search?.trim()) {
+    searchParams.set("search", params.search.trim());
   }
 
   return apiRequest<TicketListResponse>(`/tickets?${searchParams.toString()}`);

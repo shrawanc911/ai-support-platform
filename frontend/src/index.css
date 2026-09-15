@@ -317,3 +317,134 @@ select {
     grid-template-columns: 1fr;
   }
 }
+
+.ticket-filters {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    180px
+    180px;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ticket-filters input,
+.ticket-filters select {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 11px 12px;
+  background: white;
+  outline: none;
+}
+
+.ticket-filters input:focus,
+.ticket-filters select:focus {
+  border-color: #6b7280;
+}
+
+.ticket-summary {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.primary-button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+}
+
+.empty-state,
+.error-state {
+  padding: 48px;
+  text-align: center;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.empty-state h3,
+.error-state h3 {
+  margin-top: 0;
+}
+
+.empty-state p,
+.error-state p {
+  color: #6b7280;
+}
+
+.error-state {
+  border-color: #fecaca;
+}
+
+.ticket-skeleton {
+  position: relative;
+  min-height: 110px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.skeleton-line {
+  width: 55%;
+  height: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  background: #e5e7eb;
+}
+
+.skeleton-line.large {
+  width: 35%;
+  height: 18px;
+}
+
+.skeleton-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 70px;
+  height: 24px;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.pagination button {
+  min-width: 36px;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #111827;
+  color: white;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 800px) {
+  .ticket-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+}

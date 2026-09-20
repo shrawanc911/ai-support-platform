@@ -8,6 +8,7 @@ from sqlalchemy import DateTime, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models.organization import Organization
 from app.models.base import Base
 
 
@@ -44,6 +45,11 @@ class User(Base):
     name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
+    )
+
+    hashed_password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False
     )
 
     role: Mapped[UserRole] = mapped_column(

@@ -7,6 +7,7 @@ from app.api.organizations import router as organizations_router
 from app.api.users import router as users_router
 from app.api.tickets import router as tickets_router
 from app.api.ticket_messages import router as ticket_messages_router
+from app.api.auth import router as auth_router
 
 app = FastAPI(
     title="AI Support Platform API",
@@ -30,3 +31,4 @@ app.include_router(organizations_router)
 app.include_router(users_router)
 app.include_router(tickets_router)
 app.include_router(ticket_messages_router)
+app.include_router(auth_router)

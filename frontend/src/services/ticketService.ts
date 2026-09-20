@@ -7,7 +7,6 @@ import type {
 } from "../types/ticket";
 
 interface GetTicketsParams {
-  organizationId: string;
   page?: number;
   limit?: number;
   status?: TicketStatus;
@@ -19,8 +18,6 @@ export async function getTickets(
   params: GetTicketsParams,
 ): Promise<TicketListResponse> {
   const searchParams = new URLSearchParams();
-
-  searchParams.set("organization_id", params.organizationId);
 
   if (params.page) {
     searchParams.set("page", String(params.page));

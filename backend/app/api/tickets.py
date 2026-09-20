@@ -1,13 +1,14 @@
 from uuid import UUID
-
+from typing import Annotated
 from fastapi import APIRouter, Depends,HTTPException,status , Query
 from app.core.exceptions import InvalidTicketTransitionError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import get_db
+from app.core.dependencies import get_db,get_current_user
 from app.schemas.ticket import (TicketCreate, TicketUpdate, TicketResponse,TicketListResponse)
 from app.services.ticket_service import TicketService
 from app.models.ticket import (TicketPriority, TicketStatus)
+from app.models.user import User
 
 router = APIRouter(
     prefix="/tickets",
@@ -66,7 +67,10 @@ async def update_ticket(ticket_id:UUID,organization_id:UUID,data:TicketUpdate,db
     response_model=TicketListResponse,
 )
 async def list_tickets(
-    organization_id:UUID,
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
     page:int =1,
     limit:int = 20,
     status: TicketStatus | None = None,
@@ -74,6 +78,7 @@ async def list_tickets(
     search: str|None = Query(default=None,max_length=200),
     db:AsyncSession = Depends(get_db)
 ) -> TicketListResponse:
+    organization_id = current_user.organization_id
     if page < 1:
         raise HTTPException(
             status_code=400,

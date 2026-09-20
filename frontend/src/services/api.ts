@@ -1,15 +1,34 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY || "ai_support_access_token";
+
+export function setAccessToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function getAccessToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function clearAccessToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
 
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
 ) {
+  const token = getAccessToken();
+
+  const headers = new Headers(options.headers);
+  headers.set("Content-Type", "application/json");
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
   const response = await fetch(`${API_URL}${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
     ...options,
+    headers,
   });
 
   if (!response.ok) {

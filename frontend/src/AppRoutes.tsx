@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import DashboardPage from "./pages/DashboardPage";
 import TicketPage from "./pages/TicketPage";
 import TicketDetailPage from "./pages/TicketDetailPage";
+import LoginPage from "./pages/LoginPage";
 
 export default function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/tickets" element={<TicketPage />} />
           <Route path="/tickets/:ticketId" element={<TicketDetailPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

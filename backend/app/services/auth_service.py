@@ -66,6 +66,7 @@ class AuthService:
                 data.password
             ),
             role=data.role,
+            is_active=True
         )
 
         db.add(user)
@@ -89,7 +90,7 @@ class AuthService:
 
         user = result.scalar_one_or_none()
 
-        if not user:
+        if not user or not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",

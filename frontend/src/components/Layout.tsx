@@ -16,6 +16,7 @@ export default function Layout({ children }: LayoutProps) {
         <nav>
           <NavLink to="/">Dashboard</NavLink>
           <NavLink to="/tickets">Tickets</NavLink>
+          {user?.role === "ADMIN" && <NavLink to="/admin/users">Users</NavLink>}
           <NavLink to="/cutomers">Customers</NavLink>
           {["AGENT", "MANAGER", "ADMIN"].includes(user?.role ?? "") && (
             <NavLink to="/knowledge">Knowledge Base</NavLink>

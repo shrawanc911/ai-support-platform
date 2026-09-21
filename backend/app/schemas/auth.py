@@ -31,3 +31,4 @@ class CurrentUserResponse(BaseModel):
     name:str
     email :EmailStr
     role:UserRole
+    is_active:bool

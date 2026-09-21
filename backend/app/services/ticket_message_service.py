@@ -6,14 +6,15 @@ from sqlalchemy import func,select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ticket import Ticket
-from app.models.ticket_message import TicketMessage
+from app.models.ticket_message import TicketMessage, MessageType
 from app.schemas.ticket_message import (TicketMessageCreate,TicketMessageListResponse) 
+from app.models.user import User, UserRole
 
 class TicketMessageService:
     @staticmethod
-    async def create(db:AsyncSession,ticket_id:UUID,organization_id:UUID,data:TicketMessageCreate) -> TicketMessage:
+    async def create(db:AsyncSession,ticket_id:UUID,current_user:User,data:TicketMessageCreate) -> TicketMessage:
         result = await db.execute(
-            select(Ticket).where(Ticket.id==ticket_id,Ticket.organization_id==organization_id)
+            select(Ticket).where(Ticket.id==ticket_id,Ticket.customer_id==current_user.id)
         )
         ticket = result.scalar_one_or_none()
         if not ticket:
@@ -21,25 +22,15 @@ class TicketMessageService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Ticket not found"
             )
-
-        if data.sender_id is not None:
-            from app.models.user import User
-            user_result = await db.execute(
-                select(User).
-                where(User.id==data.sender_id,User.organization_id==organization_id)
-            )
-            user = user_result.scalar_one_or_none()
-
-            if not user:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Sender not found"
-                )
-
+        message_type
+        if current_user.role == UserRole.CUSTOMER:
+            message_type = MessageType.CUSTOMER
+        else:
+            message_type = MessageType.AGENT
         message = TicketMessage(
             ticket_id=ticket_id,
-            sender_id=data.sender_id,
-            message_type = data.message_type,
+            sender_id=current_user.id,
+            message_type = message_type,
             content=data.content
         )
 
@@ -49,7 +40,7 @@ class TicketMessageService:
         return message
 
     @staticmethod
-    async def list_messages(db:AsyncSession,ticket_id:UUID,organization_id:UUID,page:int=1,limit:int=50) -> TicketMessageListResponse:
+    async def list_messages(db:AsyncSession,ticket_id:UUID,current_user:User,page:int=1,limit:int=50) -> TicketMessageListResponse:
         if page < 1:
             raise HTTPException(
                 status_code=400,
@@ -66,7 +57,7 @@ class TicketMessageService:
         ticket_result = await db.execute(
             select(Ticket).where(
                 Ticket.id == ticket_id,
-                Ticket.organization_id == organization_id,
+                Ticket.customer_id == current_user.id,
             )
         )
 

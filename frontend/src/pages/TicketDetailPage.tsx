@@ -11,8 +11,6 @@ import { createTicketMessage } from "../services/messageService";
 import type { Ticket } from "../types/ticket";
 import type { TicketMessage } from "../types/message";
 
-const ORGANIZATION_ID = "e05996ae-4c33-4f4e-8d1b-e25972d3ac6f";
-
 export default function TicketDetailPage() {
   const { ticketId } = useParams<{
     ticketId: string;
@@ -38,8 +36,8 @@ export default function TicketDetailPage() {
           return;
         }
         const [ticketResponse, messagesResponse] = await Promise.all([
-          getTicket(ticketId, ORGANIZATION_ID),
-          getTicketMessages(ticketId, ORGANIZATION_ID),
+          getTicket(ticketId),
+          getTicketMessages(ticketId),
         ]);
 
         setTicket(ticketResponse);
@@ -59,9 +57,7 @@ export default function TicketDetailPage() {
       return;
     }
 
-    const newMessage = await createTicketMessage(ticketId, ORGANIZATION_ID, {
-      sender_id: null,
-      message_type: "CUSTOMER",
+    const newMessage = await createTicketMessage(ticketId, {
       content,
     });
 

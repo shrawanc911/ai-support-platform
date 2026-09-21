@@ -44,9 +44,8 @@ export async function getTickets(
 
 export async function getTicket(
   ticketId: string,
-  organizationId: string,
 ): Promise<Ticket> {
   return apiRequest<Ticket>(
-    `/tickets/${ticketId}?organization_id=${organizationId}`,
+    `/tickets/${ticketId}`,
   );
 }

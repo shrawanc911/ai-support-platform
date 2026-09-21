@@ -1,30 +1,26 @@
 import { type FormEvent, useState } from "react";
-
 import { useNavigate } from "react-router";
-
-import { login } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
-
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
-
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
+    setLoading(true);
+    setError("");
+
     try {
-      setLoading(true);
-      setError("");
-
       await login(email, password);
-
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {

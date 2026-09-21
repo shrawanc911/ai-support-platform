@@ -1,11 +1,18 @@
 import { Navigate, Outlet } from "react-router";
-
-import { getAccessToken } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute() {
-  const token = getAccessToken();
+  const { user, loading } = useAuth();
 
-  if (!token) {
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 

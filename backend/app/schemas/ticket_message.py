@@ -6,8 +6,6 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.ticket_message import MessageType
 
 class TicketMessageCreate(BaseModel):
-    sender_id:UUID |None = None
-    message_type:MessageType
     content: str = Field(
         min_length=1,
         max_length=10000

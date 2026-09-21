@@ -5,27 +5,23 @@ import type {
 } from "../types/message";
 
 interface CreateMessageInput {
-  sender_id: string | null;
-  message_type: "CUSTOMER" | "AGENT" | "SYSTEM" | "AI";
   content: string;
 }
 
 export async function getTicketMessages(
   ticketId: string,
-  organizationId: string,
 ): Promise<TicketMessageListResponse> {
   return apiRequest<TicketMessageListResponse>(
-    `/tickets/${ticketId}/messages?organization_id=${organizationId}`,
+    `/tickets/${ticketId}/messages`,
   );
 }
 
 export async function createTicketMessage(
   ticketId: string,
-  organizationId: string,
   data: CreateMessageInput,
 ): Promise<TicketMessage> {
   return apiRequest<TicketMessage>(
-    `/tickets/${ticketId}/messages?organization_id=${organizationId}`,
+    `/tickets/${ticketId}/messages`,
     {
       method: "POST",
       body: JSON.stringify(data),

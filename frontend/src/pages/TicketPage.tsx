@@ -3,8 +3,6 @@ import { Link, useSearchParams } from "react-router";
 import { getTickets } from "../services/ticketService";
 import type { Ticket, TicketStatus, TicketPriority } from "../types/ticket";
 
-const ORGANIZATION_ID = "e05996ae-4c33-4f4e-8d1b-e25972d3ac6f";
-
 const STATUSES: TicketStatus[] = [
   "OPEN",
   "AI_ANALYZING",
@@ -69,7 +67,6 @@ export default function TicketPage() {
         setError("");
 
         const response = await getTickets({
-          organizationId: ORGANIZATION_ID,
           page,
           limit: LIMIT,
           search: urlSearch || undefined,

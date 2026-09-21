@@ -9,6 +9,7 @@ class UserCreate(BaseModel):
     organization_id: UUID
     email: EmailStr
     name: str
+    password: str
     role: UserRole = UserRole.CUSTOMER
 
 class UserResponse(BaseModel):

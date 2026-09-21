@@ -6,9 +6,6 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.ticket import TicketPriority, TicketStatus
 
 class TicketCreate(BaseModel):
-    organization_id: UUID
-    customer_id: UUID
-
     subject: str = Field(
         min_length=3,
         max_length=500

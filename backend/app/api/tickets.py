@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends,HTTPException,status , Query
 from app.core.exceptions import InvalidTicketTransitionError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import get_db,get_current_user
+from app.core.dependencies import get_db,get_current_user,require_roles
 from app.schemas.ticket import (TicketCreate, TicketUpdate, TicketResponse,TicketListResponse)
 from app.services.ticket_service import TicketService
 from app.models.ticket import (TicketPriority, TicketStatus)
-from app.models.user import User
+from app.models.user import User, UserRole
 
 router = APIRouter(
     prefix="/tickets",
@@ -22,9 +22,21 @@ service = TicketService()
     response_model=TicketResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_ticket(data:TicketCreate,db:AsyncSession = Depends(get_db)):
+async def create_ticket(
+    data:TicketCreate,
+    current_user: Annotated[
+        User,
+        Depends(require_roles(
+            UserRole.CUSTOMER,
+            UserRole.ADMIN,
+            UserRole.MANAGER,
+            UserRole.AGENT
+            )
+        ),
+    ]
+    ,db:AsyncSession = Depends(get_db)):
     try:
-        return await service.create(db,data)
+        return await service.create(db,data,current_user)
     except ValueError as exc:
         message = str(exc)
 
@@ -39,8 +51,21 @@ async def create_ticket(data:TicketCreate,db:AsyncSession = Depends(get_db)):
         )
 
 @router.get("/{ticket_id}",response_model=TicketResponse)
-async def get_ticket(ticket_id:UUID,organization_id:UUID,db:AsyncSession = Depends(get_db)):
-    ticket = await service.get_by_id(db,ticket_id,organization_id)
+async def get_ticket(
+    ticket_id:UUID,
+    current_user: Annotated[
+        User,
+        Depends(
+            require_roles(
+                UserRole.CUSTOMER,
+                UserRole.ADMIN,
+                UserRole.MANAGER,
+                UserRole.AGENT
+            )
+        ),
+    ],
+    db:AsyncSession = Depends(get_db)):
+    ticket = await service.get_by_id(db,ticket_id,current_user.id)
 
     if ticket is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Ticket not found")
@@ -48,9 +73,22 @@ async def get_ticket(ticket_id:UUID,organization_id:UUID,db:AsyncSession = Depen
     return ticket
 
 @router.patch("/{ticket_id}",response_model=TicketResponse)
-async def update_ticket(ticket_id:UUID,organization_id:UUID,data:TicketUpdate,db:AsyncSession=Depends(get_db)):
+async def update_ticket(
+    ticket_id:UUID,
+    data:TicketUpdate,
+    current_user: Annotated[
+        User,
+        Depends(
+            require_roles(
+                UserRole.AGENT,
+                UserRole.MANAGER,
+                UserRole.ADMIN
+            )
+        )
+    ],
+    db:AsyncSession=Depends(get_db)):
     try:
-        ticket = await service.get_by_id(db,ticket_id,organization_id)
+        ticket = await service.get_by_id(db,ticket_id,current_user)
 
         if ticket is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Ticket not found")
@@ -69,28 +107,22 @@ async def update_ticket(ticket_id:UUID,organization_id:UUID,data:TicketUpdate,db
 async def list_tickets(
     current_user: Annotated[
         User,
-        Depends(get_current_user),
+        Depends(require_roles(
+            UserRole.ADMIN,
+            UserRole.MANAGER,
+            UserRole.AGENT
+            )
+        ),
     ],
-    page:int =1,
-    limit:int = 20,
+    page:int = Query(default=1,ge=1),
+    limit:int = Query(default=20,ge=1,le=100),
     status: TicketStatus | None = None,
     priority: TicketPriority | None = None,
     search: str|None = Query(default=None,max_length=200),
     db:AsyncSession = Depends(get_db)
 ) -> TicketListResponse:
     organization_id = current_user.organization_id
-    if page < 1:
-        raise HTTPException(
-            status_code=400,
-            detail="Page must be greater than 0"
-        )
-
-    if limit < 1 or limit > 100:
-        raise HTTPException(
-            status_code=400,
-            detail="Limit must be between 1 and 100"
-        )
-
+    
     tickets,total = await service.list(db,organization_id,page,limit,status,priority,search)
     pages = (total + limit - 1) // limit
 

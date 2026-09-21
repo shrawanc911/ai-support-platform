@@ -2,6 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter , Depends,HTTPException,status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.services.auth_service import AuthService
 from app.core.dependencies import get_db
 from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import UserService
@@ -12,6 +13,7 @@ router = APIRouter(
 )
 
 service = UserService()
+auth_service = AuthService()
 
 @router.post(
     "",
@@ -20,7 +22,8 @@ service = UserService()
 )
 async def create_user(data:UserCreate,db:AsyncSession = Depends(get_db)):
     try:
-        return await service.create(db,data)
+        return await auth_service.register(db,data)
+        # return await service.create(db,data)
     except ValueError as exc:
         message = str(exc)
         if "email" in message:

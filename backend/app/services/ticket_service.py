@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.organization import Organization
 from app.models.ticket import (Ticket,TicketStatus,TicketPriority)
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.ticket import TicketCreate, TicketUpdate
 from app.models.ticket_message import (
     MessageType,
@@ -17,9 +17,9 @@ from app.core.exceptions import InvalidTicketTransitionError
 from app.services.ticket_workflow import validate_status_transition
 
 class TicketService:
-    async def create(self, db:AsyncSession,data: TicketCreate) -> Ticket:
+    async def create(self, db:AsyncSession,data: TicketCreate,current_user: User) -> Ticket:
         # Verify organization
-        organization = await db.scalar(select(Organization).where(Organization.id == data.organization_id))
+        organization = await db.scalar(select(Organization).where(Organization.id == current_user.organization_id))
 
         if organization is None:
             raise ValueError("Organization not found")
@@ -28,8 +28,8 @@ class TicketService:
         customer = await db.scalar(
             select(User).
             where(
-                User.id==data.customer_id,
-                User.organization_id==data.organization_id
+                User.id==current_user.id,
+                User.organization_id==current_user.organization_id
             )
         )
 
@@ -37,8 +37,8 @@ class TicketService:
             raise ValueError("Customer does not belong to this organization")
 
         ticket = Ticket(
-            organization_id=data.organization_id,
-            customer_id=data.customer_id,
+            organization_id=current_user.organization_id,
+            customer_id=current_user.id,
             subject=data.subject,
             description=data.description
         )
@@ -49,10 +49,16 @@ class TicketService:
 
         return ticket
 
-    async def get_by_id(self,db:AsyncSession,ticket_id:UUID,organization_id:UUID) -> Ticket | None :
+    async def get_by_id(self,db:AsyncSession,ticket_id:UUID,current_user:User) -> Ticket | None :
         return await db.scalar(
             select(Ticket).
-            where(Ticket.id==ticket_id,Ticket.organization_id==organization_id)
+            where(
+                Ticket.id==ticket_id,
+                or_(
+                    Ticket.customer_id==current_user.id, 
+                    current_user.role != "CUSTOMER"
+                )
+            )
         )
 
     async def update(self,db:AsyncSession,ticket:Ticket,data:TicketUpdate) -> Ticket :
@@ -83,7 +89,7 @@ class TicketService:
     async def list(
             self,
             db:AsyncSession,
-            organization_id:UUID,
+            current_user:User,
             page:int=1,
             limit:int=20,
             status:TicketStatus|None = None,
@@ -92,7 +98,13 @@ class TicketService:
     )-> tuple[list[Ticket],int]:
 
         # Base filters
-        filters = [Ticket.organization_id == organization_id]
+        filters = [Ticket.organization_id == current_user.organization_id]
+
+        if current_user.role == UserRole.CUSTOMER:
+            filters.append(
+                Ticket.customer_id
+                == current_user.id
+            )
 
         # Status filter
         if status is not None:

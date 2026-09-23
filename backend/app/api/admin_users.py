@@ -12,7 +12,7 @@ from app.schemas.admin import (
     AdminUserUpdate,
 )
 from app.services.admin_user_service import AdminUserService
-from app.database import get_db
+from app.core.dependencies import get_db
 
 
 router = APIRouter(
@@ -47,5 +47,27 @@ async def create_user(
     except ValueError as exc:
         raise HTTPException(
             status_code=400,
+            detail=str(exc),
+        )
+
+@router.get(
+    "",
+    response_model=list[AdminUserResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def get_users_list(
+    current_user: Annotated[
+        User,
+        Depends(require_roles(UserRole.ADMIN)),
+    ],
+    db: AsyncSession = Depends(get_db),
+) -> list[AdminUserResponse]:
+    try:
+        result = await service.list_users(db)
+        return result
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         )

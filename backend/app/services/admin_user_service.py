@@ -8,6 +8,7 @@ from app.models.user import User, UserRole
 from app.schemas.admin import (
     AdminUserCreate,
     AdminUserUpdate,
+    AdminUserResponse
 )
 
 
@@ -16,14 +17,10 @@ class AdminUserService:
     async def list_users(
         self,
         db: AsyncSession,
-        organization_id: UUID,
     ) -> list[User]:
 
         result = await db.scalars(
             select(User)
-            .where(
-                User.organization_id == organization_id
-            )
             .order_by(User.created_at.desc())
         )
 

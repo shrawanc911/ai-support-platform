@@ -25,13 +25,13 @@ target_metadata = Base.metadata
 # Keep the async PostgreSQL driver
 config.set_main_option(
     "sqlalchemy.url",
-    settings.database_url,
+    settings.DATABASE_URL,
 )
 
 
 def run_migrations_offline() -> None:
     context.configure(
-        url=settings.database_url,
+        url=settings.DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},

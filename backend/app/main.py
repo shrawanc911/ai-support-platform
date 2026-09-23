@@ -10,6 +10,7 @@ from app.api.ticket_messages import router as ticket_messages_router
 from app.api.auth import router as auth_router
 from app.api.admin import router as admin_router
 from app.api.admin_users import router as admin_users_router
+from app.api.ticket_ai import router as ticket_ai_router
 
 app = FastAPI(
     title="AI Support Platform API",
@@ -36,3 +37,4 @@ app.include_router(ticket_messages_router)
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(admin_users_router)
+app.include_router(ticket_ai_router)

@@ -42,10 +42,12 @@ export async function getTickets(
   return apiRequest<TicketListResponse>(`/tickets?${searchParams.toString()}`);
 }
 
-export async function getTicket(
-  ticketId: string,
-): Promise<Ticket> {
-  return apiRequest<Ticket>(
-    `/tickets/${ticketId}`,
-  );
+export async function getTicket(ticketId: string): Promise<Ticket> {
+  return apiRequest<Ticket>(`/tickets/${ticketId}`);
+}
+
+export async function analyzeTicket(ticketId: string) {
+  return apiRequest(`/tickets/${ticketId}/ai/analyze`, {
+    method: "POST",
+  });
 }

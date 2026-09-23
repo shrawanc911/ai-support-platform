@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from app.models.organization import Organization
     from app.models.user import User
     from app.models.ticket_message import TicketMessage
+    from app.models.ticket_ai_analysis import TicketAIAnalysis
 
 
 class TicketStatus(str, Enum):
@@ -100,6 +101,11 @@ class Ticket(Base):
     customer: Mapped["User"] = relationship()
 
     messages: Mapped[list["TicketMessage"]] = relationship(
+        back_populates="ticket",
+        cascade="all, delete-orphan",
+    )
+
+    ai_analyses: Mapped[list["TicketAIAnalysis"]] = relationship(
         back_populates="ticket",
         cascade="all, delete-orphan",
     )

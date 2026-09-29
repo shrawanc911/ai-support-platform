@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     OPENROUTER_API_KEY: str
     OPENROUTER_MODEL: str = "openrouter/free"
 
+    REDIS_URL: str = "redis://localhost:6379/0"
+
     class Config:
         env_file = ".env"
 

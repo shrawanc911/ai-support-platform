@@ -22,3 +22,7 @@ class OrganizationService:
 
     async def get_by_id(self,db:AsyncSession,organization_id:UUID) -> Organization | None:
         return await db.scalar(select(Organization).where(Organization.id == organization_id))
+
+    async def get_organizations(self,db:AsyncSession) -> list[Organization] | None:
+        result = await db.scalars(select(Organization))
+        return result.all()

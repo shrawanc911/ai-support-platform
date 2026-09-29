@@ -64,8 +64,9 @@ async def get_ticket(
             )
         ),
     ],
-    db:AsyncSession = Depends(get_db)):
-    ticket = await service.get_by_id(db,ticket_id,current_user.id)
+    db:AsyncSession = Depends(get_db)
+    ):
+    ticket = await service.get_by_id(db,ticket_id,current_user)
 
     if ticket is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Ticket not found")
@@ -108,6 +109,7 @@ async def list_tickets(
     current_user: Annotated[
         User,
         Depends(require_roles(
+            UserRole.CUSTOMER,
             UserRole.ADMIN,
             UserRole.MANAGER,
             UserRole.AGENT
@@ -121,9 +123,8 @@ async def list_tickets(
     search: str|None = Query(default=None,max_length=200),
     db:AsyncSession = Depends(get_db)
 ) -> TicketListResponse:
-    organization_id = current_user.organization_id
-    
-    tickets,total = await service.list(db,organization_id,page,limit,status,priority,search)
+
+    tickets,total = await service.list(db,current_user,page,limit,status,priority,search)
     pages = (total + limit - 1) // limit
 
     return {

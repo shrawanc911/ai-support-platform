@@ -1,8 +1,10 @@
 from uuid import UUID
-
+from typing import Annotated
 from fastapi import APIRouter,Depends, HTTPException,status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.user import UserRole, User
+from app.core.dependencies import require_roles
 from app.core.dependencies import get_db
 from app.schemas.organization import ( OrganizationCreate , OrganizationResponse)
 from app.services.organization_service import OrganizationService
@@ -13,6 +15,20 @@ router = APIRouter(
 )
 
 service = OrganizationService()
+
+@router.get("/get_list")
+async def get_list(
+    current_user: Annotated[
+        User,
+        Depends(
+            require_roles(
+               UserRole.ADMIN 
+            )
+        )
+    ],
+    db:AsyncSession=Depends(get_db),
+):
+    return await service.get_organizations(db)
 
 @router.post(
     "",
@@ -35,3 +51,5 @@ async def get_organization(organization_id:UUID,db:AsyncSession=Depends(get_db))
         )
 
     return organization
+
+

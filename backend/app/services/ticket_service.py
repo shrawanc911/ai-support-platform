@@ -96,7 +96,6 @@ class TicketService:
             priority: TicketPriority | None = None,
             search : str | None = None
     )-> tuple[list[Ticket],int]:
-
         # Base filters
         filters = [Ticket.organization_id == current_user.organization_id]
 
@@ -105,7 +104,6 @@ class TicketService:
                 Ticket.customer_id
                 == current_user.id
             )
-
         # Status filter
         if status is not None:
             filters.append(Ticket.status == status)
@@ -124,7 +122,7 @@ class TicketService:
                     Ticket.description.ilike(search_pattern),
                 )
             )
-
+            
         # Main query
         query = (
             select(Ticket)

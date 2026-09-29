@@ -41,10 +41,10 @@ async def create_ticket_message(
     db: AsyncSession = Depends(get_db),
 ):
     return await TicketMessageService.create(
-        db=db,
-        ticket_id=ticket_id,
-        current_user=current_user,
-        data=data,
+        db,
+        ticket_id,
+        current_user,
+        data,
     )
 
 

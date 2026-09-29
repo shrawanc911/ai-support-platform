@@ -44,7 +44,6 @@ async def get_current_user(
                 settings.JWT_ALGORITHM
             ]
         )
-
         user_id = payload.get("sub")
 
         if user_id is None:
@@ -60,7 +59,6 @@ async def get_current_user(
             User.id == user_uuid
         )
     )
-
     user = result.scalar_one_or_none()
     if user is None:
         raise credential_exception
@@ -78,5 +76,6 @@ def require_roles(*allowed_roles:UserRole)->Callable:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You do not have permission to perform this action",
             )
+        
         return current_user
     return role_checker

@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { getTickets } from "../services/ticketService";
+import { createTicket, getTickets } from "../services/ticketService";
 import type { Ticket, TicketStatus, TicketPriority } from "../types/ticket";
+import CreateTicketModal from "../components/popups/CreateTicketModal";
+import { getOrganizationsList } from "../services/organizationService";
+import { useAuth } from "../context/AuthContext";
+import OrganizationSelect, {
+  Organization,
+} from "../components/OrganizationSelect";
 
 const STATUSES: TicketStatus[] = [
   "OPEN",
@@ -19,7 +25,7 @@ const LIMIT = 10;
 
 export default function TicketPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const { user } = useAuth();
   const urlSearch = searchParams.get("search") ?? "";
   const status = searchParams.get("status") as TicketStatus | null;
   const priority = searchParams.get("priority") as TicketPriority | null;
@@ -34,6 +40,8 @@ export default function TicketPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [ticketPopup, setTicketPopup] = useState<boolean>(false);
+  const [organizations, setOrganizations] = useState<Organization[] | []>([]);
 
   // Keep input synchronized with URL
   useEffect(() => {
@@ -61,31 +69,33 @@ export default function TicketPage() {
 
   // Load tickets
   useEffect(() => {
-    async function loadTickets() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await getTickets({
-          page,
-          limit: LIMIT,
-          search: urlSearch || undefined,
-          status: status || undefined,
-          priority: priority || undefined,
-        });
-
-        setTickets(response.items);
-        setTotal(response.total);
-        setPages(response.pages);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load tickets");
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadTickets();
   }, [urlSearch, status, priority, page]);
+
+  async function loadTickets() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await getTickets({
+        page,
+        limit: LIMIT,
+        search: urlSearch || undefined,
+        status: status || undefined,
+        priority: priority || undefined,
+      });
+      const data = await getOrganizationsList();
+      console.log(data);
+
+      setTickets(response.items);
+      setTotal(response.total);
+      setPages(response.pages);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load tickets");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function updateFilter(key: string, value: string) {
     const next = new URLSearchParams(searchParams);
@@ -109,6 +119,15 @@ export default function TicketPage() {
     setSearchParams(next);
   }
 
+  const handleCreateTicket = async (data: {
+    subject: string;
+    description: string;
+  }) => {
+    console.log(data);
+    await createTicket(data);
+    await loadTickets();
+  };
+
   return (
     <div>
       <header className="page-header">
@@ -117,7 +136,22 @@ export default function TicketPage() {
           <p>Manage customer support requests.</p>
         </div>
 
-        <button className="primary-button">+ New Ticket</button>
+        {user?.role == "CUSTOMER" && (
+          <button
+            className="primary-button"
+            onClick={() => setTicketPopup(true)}
+          >
+            + New Ticket
+          </button>
+        )}
+        {user?.role == "ADMIN" && <OrganizationSelect />}
+        {ticketPopup && (
+          <CreateTicketModal
+            isOpen={ticketPopup}
+            onClose={() => setTicketPopup(false)}
+            onSubmit={handleCreateTicket}
+          />
+        )}
       </header>
 
       <div className="ticket-filters">

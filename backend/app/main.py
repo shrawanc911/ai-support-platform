@@ -11,6 +11,7 @@ from app.api.auth import router as auth_router
 from app.api.admin import router as admin_router
 from app.api.admin_users import router as admin_users_router
 from app.api.ticket_ai import router as ticket_ai_router
+from app.api.redis_test import router as redis_router
 
 app = FastAPI(
     title="AI Support Platform API",
@@ -38,3 +39,4 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(admin_users_router)
 app.include_router(ticket_ai_router)
+app.include_router(redis_router)

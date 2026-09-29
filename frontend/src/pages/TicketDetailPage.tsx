@@ -10,10 +10,11 @@ import { createTicketMessage } from "../services/messageService";
 
 import type { Ticket } from "../types/ticket";
 import type { TicketMessage } from "../types/message";
-import { analyzeTicket } from "../services/ticketAIService";
+import { analyzeTicket, streamAIJob } from "../services/ticketAIService";
 import TicketAIAnalysis from "../components/tickets/TicketAIAnalysis";
 import type { TicketAIAnalysis as TicketAIAnalysisData } from "../types/ticketAI";
 import { useAuth } from "../context/AuthContext";
+import AIAnalysisProgress from "../components/AIAnalysisProgress";
 
 export default function TicketDetailPage() {
   const { ticketId } = useParams<{
@@ -29,6 +30,10 @@ export default function TicketDetailPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [aiStatus, setAIStatus] = useState<
+    "idle" | "queued" | "processing" | "completed" | "failed"
+  >("idle");
+  const [aiProgress, setAIProgress] = useState("");
 
   useEffect(() => {
     if (!ticketId) {
@@ -88,6 +93,56 @@ export default function TicketDetailPage() {
     }
   }
 
+  const handleAnalyze = async () => {
+    if (!ticket) {
+      return;
+    }
+
+    setAiError(null);
+
+    setAIStatus("queued");
+
+    setAIProgress("Creating AI analysis job...");
+
+    try {
+      const job = await analyzeTicket(ticket.id);
+
+      setAIStatus("queued");
+
+      setAIProgress("AI analysis queued...");
+
+      await streamAIJob(ticket.id, job.id, (event) => {
+        if (event.status === "PROCESSING") {
+          setAIStatus("processing");
+        }
+
+        if (event.status === "COMPLETED") {
+          setAIStatus("completed");
+        }
+
+        if (event.status === "FAILED") {
+          setAIStatus("failed");
+        }
+
+        if (event.message) {
+          setAIProgress(event.message);
+        }
+
+        if (event.type === "completed") {
+          // loadAIAnalysis();
+        }
+      });
+    } catch (error) {
+      console.error("AI analysis failed:", error);
+
+      setAIStatus("failed");
+
+      setAIProgress("Unable to complete AI analysis.");
+
+      setAiError("AI analysis connection failed.");
+    }
+  };
+
   if (loading) {
     return <p>Loading ticket...</p>;
   }
@@ -109,12 +164,13 @@ export default function TicketDetailPage() {
       {user && ["AGENT", "MANAGER", "ADMIN"].includes(user.role) && (
         <section className="ai-analysis-section">
           <button
-            onClick={handleAIAnalysis}
+            onClick={handleAnalyze}
             disabled={aiLoading}
             className="rounded-lg border px-4 py-2"
           >
             {aiLoading ? "Analyzing..." : "Analyze with AI"}
           </button>
+          <AIAnalysisProgress status={aiStatus} message={aiProgress} />
 
           {aiError && <p className="text-red-500">{aiError}</p>}
 

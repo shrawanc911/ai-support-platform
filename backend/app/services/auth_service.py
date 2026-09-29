@@ -24,7 +24,7 @@ class AuthService:
         db: AsyncSession,
         data: RegisterRequest,
     ) -> User:
-
+        
         organization_result = await db.execute(
             select(Organization).where(
                 Organization.id

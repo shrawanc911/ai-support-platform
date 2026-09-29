@@ -14,6 +14,11 @@ interface GetTicketsParams {
   search?: string;
 }
 
+interface CreateTicket {
+  subject: string;
+  description?: string;
+}
+
 export async function getTickets(
   params: GetTicketsParams,
 ): Promise<TicketListResponse> {
@@ -44,6 +49,13 @@ export async function getTickets(
 
 export async function getTicket(ticketId: string): Promise<Ticket> {
   return apiRequest<Ticket>(`/tickets/${ticketId}`);
+}
+
+export async function createTicket(data: CreateTicket): Promise<Ticket> {
+  return apiRequest<Ticket>(`/tickets`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
 export async function analyzeTicket(ticketId: string) {

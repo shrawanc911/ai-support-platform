@@ -22,7 +22,7 @@ class TicketMessageService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Ticket not found"
             )
-        message_type
+        message_type = ""
         if current_user.role == UserRole.CUSTOMER:
             message_type = MessageType.CUSTOMER
         else:

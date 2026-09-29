@@ -8,6 +8,8 @@ import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UsersPage from "./pages/admin/UsersPage";
 import RoleRoute from "./components/RoleRoute";
+import KnowledgeBasePage from "./pages/knowledge/KnowledgeBasePage";
+import KnowledgeDocumentPage from "./pages/knowledge/KnowledgeDocumentPage";
 
 export default function AppRoutes() {
   return (
@@ -21,6 +23,17 @@ export default function AppRoutes() {
             <Route path="/tickets/:ticketId" element={<TicketDetailPage />} />
             <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
               <Route path="/admin/users" element={<UsersPage />} />
+            </Route>
+            <Route
+              element={
+                <RoleRoute allowedRoles={["AGENT", "MANAGER", "ADMIN"]} />
+              }
+            >
+              <Route path="/knowledge" element={<KnowledgeBasePage />} />
+              <Route
+                path="/knowledge/:documentId"
+                element={<KnowledgeDocumentPage />}
+              />
             </Route>
           </Route>
           <Route path="/login" element={<LoginPage />} />

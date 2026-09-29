@@ -22,23 +22,34 @@ class KnowledgeDocumentCreate(BaseModel):
 
 
 class KnowledgeDocumentResponse(BaseModel):
-
-    model_config = ConfigDict(
-        from_attributes=True
-    )
-
+    model_config = ConfigDict(from_attributes=True)
     id: UUID
-
     organization_id: UUID
-
     title: str
-
     source: str | None
-
     created_at: datetime
-
     updated_at: datetime
 
+class KnowledgeChunkResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    document_id: UUID
+    chunk_index: int
+    content: str
+    created_at: datetime
+
+class KnowledgeDocumentDetailResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    organization_id: UUID
+    title: str
+    content: str
+    source: str | None
+    created_at: datetime
+    updated_at: datetime
+    chunks: list[KnowledgeChunkResponse]
 
 class KnowledgeSearchResult(BaseModel):
 

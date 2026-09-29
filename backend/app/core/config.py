@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    AI_MAX_ATTEMPTS: int = 3
+
     class Config:
         env_file = ".env"
 

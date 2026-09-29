@@ -9,5 +9,6 @@ class AIProvider(Protocol):
         self,
         subject: str,
         description: str,
+        job
     ) -> TicketAIAnalysisResult:
         ...

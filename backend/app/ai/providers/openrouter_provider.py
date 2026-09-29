@@ -20,6 +20,7 @@ class OpenRouterProvider:
         self,
         subject: str,
         description: str,
+        job
     ) -> TicketAIAnalysisResult:
 
         prompt = USER_PROMPT_TEMPLATE.format(

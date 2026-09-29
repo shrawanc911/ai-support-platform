@@ -19,7 +19,7 @@ from app.services.ticket_service import TicketService
 from app.core.dependencies import get_db
 from app.models.ticket import Ticket
 from app.models.user import User
-from app.schemas.ai_job import AIJobResponse
+from app.ai.schemas import AIJobResponse
 from app.models.ai_job import AIJob
 from app.core.redis import redis_client
 from app.ai.events import get_ai_job_channel

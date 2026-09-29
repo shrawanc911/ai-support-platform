@@ -29,6 +29,13 @@ class TicketAIAnalysis(Base):
         default=uuid.uuid4,
     )
 
+    job_id: Mapped[UUID] = mapped_column(
+        ForeignKey("ai_jobs.id"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
     ticket_id: Mapped[UUID] = mapped_column(
         ForeignKey("tickets.id"),
         nullable=False,

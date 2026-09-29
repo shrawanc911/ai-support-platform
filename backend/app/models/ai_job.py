@@ -71,3 +71,8 @@ class AIJob(Base):
         DateTime(timezone=True),
         nullable=True,
     )
+
+    attempts: Mapped[int] = mapped_column(
+        nullable=False,
+        default=0,
+    )

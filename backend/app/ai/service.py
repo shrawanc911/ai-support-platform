@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy import select
 from app.ai.providers.base import AIProvider
 from app.models.ticket import Ticket
 from app.models.ticket_ai_analysis import TicketAIAnalysis
@@ -18,15 +18,27 @@ class TicketAIService:
         self,
         db: AsyncSession,
         ticket: Ticket,
+        job
     ) -> TicketAIAnalysis:
+
+        existing_analysis = await db.scalar(
+            select(TicketAIAnalysis).where(
+            TicketAIAnalysis.job_id == job.id
+            )
+        )
+
+        if existing_analysis:
+            return existing_analysis
 
         result = await self.provider.analyze_ticket(
             subject=ticket.subject,
             description=ticket.description,
+            job=job
         )
 
         analysis = TicketAIAnalysis(
             ticket_id=ticket.id,
+            job_id=job.id,
             category=result.category.value,
             priority=result.priority.value,
             sentiment=result.sentiment.value,
@@ -44,3 +56,4 @@ class TicketAIService:
         await db.refresh(analysis)
 
         return analysis
+    

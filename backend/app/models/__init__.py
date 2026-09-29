@@ -6,5 +6,6 @@ from app.models.ai_job import AIJob
 from app.models.ticket_ai_analysis import TicketAIAnalysis
 from app.models.knowledge_document import KnowledgeDocument
 from app.models.knowledge_chunk import KnowledgeChunk
+from app.models.ai_source import AISource
 
-__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis", "KnowledgeDocument", "KnowledgeChunk"]
+__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis", "KnowledgeDocument", "KnowledgeChunk", "AISource"]

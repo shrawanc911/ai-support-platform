@@ -1,6 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.ai.providers.base import AIProvider
+from app.ai.providers.openrouter_provider import OpenRouterProvider
+from app.ai.rag import RAGService, build_rag_context
+from app.ai.providers.openrouter_provider import OpenRouterProvider
+from app.knowledge.service import KnowledgeService
+from app.models.ai_source import AISource
 from app.models.ticket import Ticket
 from app.models.ticket_ai_analysis import TicketAIAnalysis
 from app.core.config import settings
@@ -10,9 +14,10 @@ class TicketAIService:
 
     def __init__(
         self,
-        provider: AIProvider,
+        provider: OpenRouterProvider,
     ):
         self.provider = provider
+        self.rag = RAGService(KnowledgeService())
 
     async def analyze_ticket(
         self,
@@ -20,6 +25,21 @@ class TicketAIService:
         ticket: Ticket,
         job
     ) -> TicketAIAnalysis:
+
+        rag_results = await self.rag.retrieve(
+            db,
+            organization_id=ticket.organization_id,
+            query=(
+                f"{ticket.subject}\n"
+                f"{ticket.description}"
+            ),
+            limit=5,
+            min_similarity=0.55
+        )
+
+        rag_context = build_rag_context(
+            rag_results
+        )
 
         existing_analysis = await db.scalar(
             select(TicketAIAnalysis).where(
@@ -33,7 +53,7 @@ class TicketAIService:
         result = await self.provider.analyze_ticket(
             subject=ticket.subject,
             description=ticket.description,
-            job=job
+            rag_context=rag_context
         )
 
         analysis = TicketAIAnalysis(

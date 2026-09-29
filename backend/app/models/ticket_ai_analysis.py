@@ -97,3 +97,8 @@ class TicketAIAnalysis(Base):
     ticket: Mapped["Ticket"] = relationship(
         back_populates="ai_analyses"
     )
+
+    sources = relationship(
+        "AISource",
+        cascade="all, delete-orphan",
+    )

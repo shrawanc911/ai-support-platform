@@ -9,6 +9,7 @@ class AIProvider(Protocol):
         self,
         subject: str,
         description: str,
+        rag_context:str,
         job
     ) -> TicketAIAnalysisResult:
         ...

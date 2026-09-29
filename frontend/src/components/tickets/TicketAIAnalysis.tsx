@@ -1,7 +1,7 @@
 import type { TicketAIAnalysis } from "../../types/ticketAI";
 
 interface Props {
-  analysis: TicketAIAnalysis
+  analysis: TicketAIAnalysis;
 }
 
 export default function TicketAIAnalysis({ analysis }: Props) {
@@ -60,6 +60,28 @@ export default function TicketAIAnalysis({ analysis }: Props) {
 
         <p className="font-medium">{(analysis.confidence * 100).toFixed(0)}%</p>
       </div>
+
+      {analysis.sources.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold">Knowledge Sources</h3>
+
+          <div className="mt-3 space-y-3">
+            {analysis.sources.map((source) => (
+              <div key={source.id} className="rounded-lg border p-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">{source.document_title}</p>
+
+                  <span className="text-xs">
+                    {(source.similarity * 100).toFixed(0)}%
+                  </span>
+                </div>
+
+                <p className="mt-2 text-sm">{source.content}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -10,6 +10,15 @@ from app.ai.enums import (
 from app.models.ticket import TicketPriority
 
 
+class AISourceResponse(BaseModel):
+    id: UUID
+    document_id: UUID
+    chunk_id: UUID
+    document_title: str
+    content: str
+    similarity: float
+
+
 class TicketAIAnalysisResult(BaseModel):
     category: TicketCategory
     priority: TicketPriority
@@ -30,6 +39,7 @@ class TicketAIAnalysisResult(BaseModel):
         min_length=1,
         max_length=2000,
     )
+    source: list[AISourceResponse]
 
 class AIJobResponse(BaseModel):
     model_config = ConfigDict(
@@ -44,4 +54,4 @@ class AIJobResponse(BaseModel):
     created_at: datetime
     started_at: datetime | None
     completed_at: datetime | None
-    
+

@@ -2,7 +2,7 @@ from openai import AsyncOpenAI
 
 from app.ai.prompts import (
     SYSTEM_PROMPT,
-    USER_PROMPT_TEMPLATE,
+    build_ticket_prompt,
 )
 from app.ai.schemas import TicketAIAnalysisResult
 from app.core.config import settings
@@ -20,13 +20,10 @@ class OpenRouterProvider:
         self,
         subject: str,
         description: str,
-        job
+        rag_context: str,
     ) -> TicketAIAnalysisResult:
 
-        prompt = USER_PROMPT_TEMPLATE.format(
-            subject=subject,
-            description=description,
-        )
+        prompt = build_ticket_prompt(subject=subject,description=description,rag_context=rag_context)
 
         response = await self.client.chat.completions.create(
             model=settings.OPENROUTER_MODEL,

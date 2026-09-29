@@ -4,5 +4,7 @@ from app.models.ticket_message import TicketMessage
 from app.models.user import User
 from app.models.ai_job import AIJob
 from app.models.ticket_ai_analysis import TicketAIAnalysis
+from app.models.knowledge_document import KnowledgeDocument
+from app.models.knowledge_chunk import KnowledgeChunk
 
-__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis"]
+__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis", "KnowledgeDocument", "KnowledgeChunk"]

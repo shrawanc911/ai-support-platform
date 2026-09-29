@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     AI_MAX_ATTEMPTS: int = 3
 
+    EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"
+    EMBEDDING_DIMENSION: int = 384
+
     class Config:
         env_file = ".env"
 

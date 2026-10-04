@@ -92,10 +92,12 @@ async def process_document(
             ):
                 db.add(
                     KnowledgeChunk(
+                        organization_id=document.organization_id,
                         document_id=document.id,
                         chunk_index=index,
                         content=content,
                         embedding=embedding,
+                        char_count=len(content)
                     )
                 )
 

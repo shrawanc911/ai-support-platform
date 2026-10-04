@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.embeddings import embedding_service
@@ -48,10 +48,12 @@ class KnowledgeService:
 
             db.add(
                 KnowledgeChunk(
+                    organization_id=document.organization_id,
                     document_id=document.id,
                     chunk_index=index,
                     content=chunk_content,
                     embedding=embedding,
+                    char_count=len(content)
                 )
             )
 
@@ -67,7 +69,8 @@ class KnowledgeService:
         organization_id: UUID,
         query: str,
         limit: int = 5,
-    ):
+        min_similarity: float = 0.55,
+    ) -> list[dict]:
 
         query_embedding = (
             embedding_service.embed(query)
@@ -80,10 +83,14 @@ class KnowledgeService:
             )
         )
 
-        result = await db.execute(
+        statement = (
             select(
-                KnowledgeChunk,
-                KnowledgeDocument,
+                KnowledgeChunk.id.label("chunk_id"),
+                KnowledgeChunk.document_id,
+                KnowledgeDocument.title.label(
+                    "document_title"
+                ),
+                KnowledgeChunk.content,
                 similarity.label("similarity"),
             )
             .join(
@@ -92,8 +99,11 @@ class KnowledgeService:
                 == KnowledgeChunk.document_id,
             )
             .where(
+                KnowledgeChunk.organization_id
+                == organization_id,
                 KnowledgeDocument.organization_id
-                == organization_id
+                == organization_id,
+                similarity >= min_similarity,
             )
             .order_by(
                 similarity.desc()
@@ -101,17 +111,20 @@ class KnowledgeService:
             .limit(limit)
         )
 
+        result = await db.execute(statement)
+
         rows = result.all()
 
         return [
             {
-                "chunk_id": chunk.id,
-                "document_id": document.id,
-                "document_title": document.title,
-                "content": chunk.content,
-                "similarity": float(score),
+                "chunk_id": row.chunk_id,
+                "document_id": row.document_id,
+                "document_title": row.document_title,
+                "content": row.content,
+                "similarity": float(row.similarity),
+                "chunk_index": row.chunk_index,
             }
-            for chunk, document, score in rows
+            for row in result
         ]
 
     async def list_documents(
@@ -201,10 +214,12 @@ class KnowledgeService:
         ):
             db.add(
                 KnowledgeChunk(
+                    organization_id=document.organization_id,
                     document_id=document.id,
                     chunk_index=index,
                     content=content,
                     embedding=embedding,
+                    char_count=len(content)
                 )
             )
 

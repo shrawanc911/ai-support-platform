@@ -36,6 +36,15 @@ class KnowledgeChunk(Base):
         index=True,
     )
 
+    organization_id: Mapped[UUID] = mapped_column(
+        ForeignKey(
+            "organizations.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
     chunk_index: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
@@ -49,6 +58,15 @@ class KnowledgeChunk(Base):
     embedding = mapped_column(
         Vector(settings.EMBEDDING_DIMENSION),
         nullable=False,
+    )
+
+    token_count: Mapped[int | None] = mapped_column(
+        nullable=True,
+    )
+
+    char_count: Mapped[int] = mapped_column(
+        nullable=False,
+        default=0,
     )
 
     created_at: Mapped[datetime] = mapped_column(

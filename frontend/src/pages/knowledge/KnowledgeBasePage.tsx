@@ -245,6 +245,10 @@ export default function KnowledgeBasePage() {
                 </span>
               </div>
 
+              <p className="text-xs text-gray-500">
+                Chunk #{result.chunk_index + 1}
+              </p>
+
               <p className="mt-3 text-sm text-gray-600">{result.content}</p>
             </div>
           ))}

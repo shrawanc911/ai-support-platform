@@ -26,6 +26,7 @@ export interface KnowledgeSearchResult {
   chunk_id: string;
   document_id: string;
   document_title: string;
+  chunk_index: number;
   content: string;
   similarity: number;
 }

@@ -26,13 +26,15 @@ class TicketAIService:
         job
     ) -> TicketAIAnalysis:
 
+        rag_query = self.build_ticket_retrieval_query(
+            ticket.subject,
+            ticket.description,
+        )
+
         rag_results = await self.rag.retrieve(
             db,
             organization_id=ticket.organization_id,
-            query=(
-                f"{ticket.subject}\n"
-                f"{ticket.description}"
-            ),
+            query=rag_query,
             limit=5,
             min_similarity=0.55
         )
@@ -76,4 +78,15 @@ class TicketAIService:
         await db.refresh(analysis)
 
         return analysis
+
+    def build_ticket_retrieval_query(
+        subject: str,
+        description: str,
+    ) -> str:
+        return (
+            f"Customer support issue\n\n"
+            f"Subject: {subject}\n\n"
+            f"Description: {description}"
+        )
+
     

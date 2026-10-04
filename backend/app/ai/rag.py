@@ -28,15 +28,23 @@ class RAGService:
             db=db,
             organization_id=organization_id,
             query=query,
-            limit=limit,
+            limit=limit * 3,
+            min_similarity=min_similarity,
         )
 
-        return [
-            result
-            for result in results
-            if result["similarity"]
-            >= min_similarity
-        ]
+        selected = []
+        document_ids = set()
+
+        for result in results:
+            document_id = result["document_id"]
+            if document_id in document_ids:
+                continue
+            selected.append(result)
+            document_ids.add(document_id)
+            if len(selected) >= limit:
+                break
+
+        return selected
 
 def build_rag_context(
     results: list[dict],
@@ -61,6 +69,9 @@ SOURCE {index}
 
 Document:
 {result["document_title"]}
+
+Chunk:
+{result["chunk_index"] + 1}
 
 Similarity:
 {result["similarity"]:.3f}

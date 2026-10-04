@@ -6,20 +6,9 @@ from app.models.knowledge_document import KnowledgeDocumentStatus
 
 
 class KnowledgeDocumentCreate(BaseModel):
-
-    title: str = Field(
-        min_length=3,
-        max_length=300,
-    )
-
-    content: str = Field(
-        min_length=20,
-    )
-
-    source: str | None = Field(
-        default=None,
-        max_length=500,
-    )
+    title: str = Field(min_length=3,max_length=300,)
+    content: str = Field(min_length=20)
+    source: str | None = Field(default=None,max_length=500,)
 
 
 class KnowledgeDocumentResponse(BaseModel):
@@ -68,3 +57,4 @@ class KnowledgeSearchResult(BaseModel):
     document_title: str
     content: str
     similarity: float
+    chunk_index: int

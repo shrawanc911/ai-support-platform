@@ -14,6 +14,7 @@ from app.api.ticket_ai import router as ticket_ai_router
 from app.api.redis_test import router as redis_router
 from app.api.knowledge import router as knowledge_router
 from app.api.ai_agent import router as ai_agent_router
+from app.api.agent_actions import router as agent_actions_router
 
 app = FastAPI(
     title="AI Support Platform API",
@@ -44,3 +45,4 @@ app.include_router(ticket_ai_router)
 app.include_router(redis_router)
 app.include_router(knowledge_router)
 app.include_router(ai_agent_router)
+app.include_router(agent_actions_router)

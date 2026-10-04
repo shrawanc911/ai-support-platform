@@ -5,6 +5,7 @@ from app.ai.agent.tools import (
     GetSubscriptionTool,
     SearchKnowledgeTool,
     SearchTicketHistoryTool,
+    ChangeTicketStatusTool,
 )
 
 
@@ -18,6 +19,7 @@ class AgentToolRegistry:
                 GetCustomerTool(),
                 GetOrderTool(),
                 GetSubscriptionTool(),
+                ChangeTicketStatusTool()
             ]
         }
 
@@ -125,6 +127,34 @@ class AgentToolRegistry:
                                 ),
                             },
                         },
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "change_ticket_status",
+                    "description": (
+                        "Propose a ticket status change. "
+                        "The action requires human approval before execution."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "string",
+                                "enum": [
+                                    "OPEN",
+                                    "AI_ANALYZING",
+                                    "ASSIGNED",
+                                    "IN_PROGRESS",
+                                    "WAITING_FOR_CUSTOMER",
+                                    "RESOLVED",
+                                    "CLOSED",
+                                ],
+                            }
+                        },
+                        "required": ["status"],
                     },
                 },
             }

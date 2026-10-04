@@ -9,5 +9,6 @@ from app.models.knowledge_chunk import KnowledgeChunk
 from app.models.ai_source import AISource
 from app.models.order import Order
 from app.models.subscription import Subscription
+from app.models.agent_action import AgentAction
 
-__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis", "KnowledgeDocument", "KnowledgeChunk", "AISource", "Order", "Subscription"]
+__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis", "KnowledgeDocument", "KnowledgeChunk", "AISource", "Order", "Subscription", "AgentAction"]

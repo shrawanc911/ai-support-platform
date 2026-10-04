@@ -4,6 +4,8 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.agent.action_enums import AgentActionType
+from app.ai.agent.action_service import AgentActionService
 from app.ai.rag import RAGService
 from app.knowledge.service import KnowledgeService
 from app.models.ticket import Ticket
@@ -202,7 +204,7 @@ class GetOrderTool(AgentTool):
 
         order = await self.service.get_customer_order(
             db=db,
-            organization_id=organization_id,
+            organization_id=context.organization_id,
             customer_id=customer_id,
             order_id=order_id,
             order_number=order_number,
@@ -278,5 +280,51 @@ class GetSubscriptionTool(AgentTool):
                 subscription.renewal_date.isoformat()
                 if subscription.renewal_date
                 else None
+            ),
+        }
+
+class ChangeTicketStatusTool:
+
+    name = "change_ticket_status"
+
+    description = (
+        "Propose changing the current ticket status. "
+        "This creates a pending action requiring human approval."
+    )
+
+    async def execute(
+        self,
+        db,
+        context,
+        arguments,
+    ):
+        status = arguments.get("status")
+
+        if not status:
+            return {
+                "success": False,
+                "error": "status is required",
+            }
+
+        service = AgentActionService()
+
+        action = await service.create_action(
+            db=db,
+            organization_id=context.organization_id,
+            ticket_id=context.ticket_id,
+            requested_by_id=context.requested_by_id,
+            action_type=AgentActionType.CHANGE_TICKET_STATUS,
+            payload={
+                "status": status,
+            },
+        )
+
+        return {
+            "success": True,
+            "action_id": str(action.id),
+            "status": action.status,
+            "message": (
+                "Ticket status change proposed. "
+                "Human approval is required."
             ),
         }

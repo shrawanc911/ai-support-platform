@@ -45,6 +45,7 @@ async def run_agent(
         organization_id=current_user.organization_id,
         ticket_id=ticket.id,
         customer_id=ticket.customer_id,
+        requested_by_id=current_user.id,
     )
     service = AIAgentService()
 

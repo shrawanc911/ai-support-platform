@@ -15,6 +15,9 @@ import TicketAIAnalysis from "../components/tickets/TicketAIAnalysis";
 import type { TicketAIAnalysis as TicketAIAnalysisData } from "../types/ticketAI";
 import { useAuth } from "../context/AuthContext";
 import AIAnalysisProgress from "../components/AIAnalysisProgress";
+import AgentActionCard from "../components/ai/AgentActionCard";
+import { getAgentActions } from "../services/agentActionService";
+import type { AgentAction } from "../types/agentAction";
 
 export default function TicketDetailPage() {
   const { ticketId } = useParams<{
@@ -34,6 +37,7 @@ export default function TicketDetailPage() {
     "idle" | "queued" | "processing" | "completed" | "failed"
   >("idle");
   const [aiProgress, setAIProgress] = useState("");
+  const [agentActions, setAgentActions] = useState<AgentAction[]>([]);
 
   useEffect(() => {
     if (!ticketId) {
@@ -46,13 +50,17 @@ export default function TicketDetailPage() {
         if (!ticketId) {
           return;
         }
-        const [ticketResponse, messagesResponse] = await Promise.all([
+        const [ticketResponse, messagesResponse, actions] = await Promise.all([
           getTicket(ticketId),
           getTicketMessages(ticketId),
+          getAgentActions(),
         ]);
 
         setTicket(ticketResponse);
         setMessages(messagesResponse.items);
+        setAgentActions(
+          actions.filter((action) => action.ticket_id === ticketId),
+        );
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load ticket");
       } finally {
@@ -160,7 +168,17 @@ export default function TicketDetailPage() {
       <Link to="/tickets">← Back to tickets</Link>
 
       <TicketHeader ticket={ticket} />
-
+      {agentActions.map((action) => (
+        <AgentActionCard
+          key={action.id}
+          action={action}
+          onUpdated={(updated) => {
+            setAgentActions((current) =>
+              current.map((item) => (item.id === updated.id ? updated : item)),
+            );
+          }}
+        />
+      ))}
       {user && ["AGENT", "MANAGER", "ADMIN"].includes(user.role) && (
         <section className="ai-analysis-section">
           <button

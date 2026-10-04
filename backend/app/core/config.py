@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     EMBEDDING_DIMENSION: int = 384
     STORAGE_DIR: str = "backend/storage"
 
+    AI_AGENT_MAX_TOOL_CALLS: int = 5
+    AI_AGENT_MAX_ITERATIONS: int = 6
+
     class Config:
         env_file = ".env"
 

@@ -18,3 +18,8 @@ class AgentResponse(BaseModel):
     answer: str
     tools_used: list[str] = Field(default_factory=list)
     confidence: float = Field(ge=0, le=1)
+
+class AgentFinalResponse(BaseModel):
+    answer: str
+    confidence: float = Field(ge=0,le=1,)
+    tools_used: list[str] = Field(default_factory=list,)

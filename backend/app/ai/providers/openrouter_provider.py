@@ -51,3 +51,17 @@ class OpenRouterProvider:
         return TicketAIAnalysisResult.model_validate_json(
             content
         )
+
+    async def agent_completion(
+        self,
+        messages: list[dict],
+        tools: list[dict],
+    ):
+        response = await self.client.chat.completions.create(
+            model=settings.OPENROUTER_MODEL,
+            messages=messages,
+            tools=tools,
+            tool_choice="auto",
+        )
+
+        return response

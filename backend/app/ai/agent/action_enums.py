@@ -10,6 +10,7 @@ class AgentActionType(str, Enum):
 class AgentActionStatus(str, Enum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"
+    PROCESSING = "PROCESSING"
     REJECTED = "REJECTED"
     EXECUTED = "EXECUTED"
     FAILED = "FAILED"

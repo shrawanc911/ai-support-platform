@@ -6,6 +6,7 @@ export type AgentActionType =
 export type AgentActionStatus =
   | "PENDING"
   | "APPROVED"
+  | "PROCESSING"
   | "REJECTED"
   | "EXECUTED"
   | "FAILED";

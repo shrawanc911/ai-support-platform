@@ -9,6 +9,7 @@ from app.ai.agent.action_enums import (
     AgentActionStatus,
     AgentActionType,
 )
+from sqlalchemy import Integer
 
 
 class AgentAction(Base):
@@ -62,6 +63,23 @@ class AgentAction(Base):
 
     error_message: Mapped[str | None] = mapped_column(
         Text,
+        nullable=True,
+    )
+
+    attempts: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    max_attempts: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=3,
+    )
+
+    started_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
         nullable=True,
     )
 

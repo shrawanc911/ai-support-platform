@@ -137,9 +137,9 @@ class AgentActionService:
         action: AgentAction,
     ) -> AgentAction:
 
-        if action.status != AgentActionStatus.APPROVED:
+        if action.status != AgentActionStatus.PROCESSING:
             raise ValueError(
-                "Only approved actions can be executed"
+                "Only processing actions can be executed"
             )
 
         try:

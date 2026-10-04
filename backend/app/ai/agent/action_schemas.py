@@ -13,13 +13,13 @@ class AgentActionCreate(BaseModel):
     action_type: AgentActionType
     payload: dict
 
-
 class AgentActionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     organization_id: UUID
     ticket_id: UUID
+
     requested_by_id: UUID
     approved_by_id: UUID | None
 
@@ -28,12 +28,15 @@ class AgentActionResponse(BaseModel):
 
     payload: dict
 
+    attempts: int
+    max_attempts: int
+
     error_message: str | None
 
     created_at: datetime
+    started_at: datetime | None
     approved_at: datetime | None
     executed_at: datetime | None
-
 
 class AgentActionRejectRequest(BaseModel):
     reason: str = Field(

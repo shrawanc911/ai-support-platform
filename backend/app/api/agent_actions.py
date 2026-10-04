@@ -115,10 +115,8 @@ async def approve_action(
             approver=current_user,
         )
 
-        action = await action_service.execute_action(
-            db=db,
-            action=action,
-        )
+        from app.ai.agent.action_queue import enqueue_agent_action
+        await enqueue_agent_action(action.id)
 
         return action
 

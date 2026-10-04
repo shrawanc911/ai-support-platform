@@ -55,6 +55,14 @@ export default function AgentActionCard({ action, onUpdated }: Props) {
         {JSON.stringify(action.payload, null, 2)}
       </pre>
 
+      {action.status === "APPROVED" && (
+        <p className="text-sm">Action approved. Waiting for worker...</p>
+      )}
+
+      {action.status === "PROCESSING" && (
+        <p className="text-sm">Executing action...</p>
+      )}
+
       {action.status === "PENDING" && (
         <div className="flex gap-2">
           <button
@@ -84,9 +92,11 @@ export default function AgentActionCard({ action, onUpdated }: Props) {
       )}
 
       {action.status === "FAILED" && (
-        <p className="text-sm text-red-600">
-          Execution failed: {action.error_message}
-        </p>
+        <div className="text-sm text-red-600">
+          <p>Action execution failed.</p>
+
+          {action.error_message && <p>{action.error_message}</p>}
+        </div>
       )}
     </div>
   );

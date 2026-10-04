@@ -24,3 +24,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+backend/storage/*
+!backend/storage/.gitkeep

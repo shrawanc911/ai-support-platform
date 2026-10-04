@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"
     EMBEDDING_DIMENSION: int = 384
+    STORAGE_DIR: str = "backend/storage"
 
     class Config:
         env_file = ".env"

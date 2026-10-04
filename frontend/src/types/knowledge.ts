@@ -3,6 +3,8 @@ export interface KnowledgeDocument {
   organization_id: string;
   title: string;
   source: string | null;
+  status: "PENDING" | "PROCESSING" | "READY" | "FAILED";
+  error_message: string | null;
   created_at: string;
   updated_at: string;
 }

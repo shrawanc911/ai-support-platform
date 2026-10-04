@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.models.knowledge_document import KnowledgeDocumentStatus
 
 
 class KnowledgeDocumentCreate(BaseModel):
@@ -27,6 +28,11 @@ class KnowledgeDocumentResponse(BaseModel):
     organization_id: UUID
     title: str
     source: str | None
+    file_name: str | None
+    file_type: str | None
+    file_size: int | None
+    status: KnowledgeDocumentStatus
+    error_message: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -47,18 +53,18 @@ class KnowledgeDocumentDetailResponse(BaseModel):
     title: str
     content: str
     source: str | None
+    file_name: str | None
+    file_type: str | None
+    file_size: int | None
+    status: KnowledgeDocumentStatus
+    error_message: str | None
     created_at: datetime
     updated_at: datetime
     chunks: list[KnowledgeChunkResponse]
 
 class KnowledgeSearchResult(BaseModel):
-
     chunk_id: UUID
-
     document_id: UUID
-
     document_title: str
-
     content: str
-
     similarity: float

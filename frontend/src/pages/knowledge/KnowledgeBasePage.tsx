@@ -10,6 +10,7 @@ import type {
   KnowledgeDocument,
   KnowledgeSearchResult,
 } from "../../types/knowledge";
+import { uploadKnowledgeDocument } from "../../services/knowledgeService";
 
 export default function KnowledgeBasePage() {
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
@@ -26,6 +27,11 @@ export default function KnowledgeBasePage() {
     [],
   );
   const [searching, setSearching] = useState(false);
+  const [uploadTitle, setUploadTitle] = useState("");
+
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+
+  const [uploading, setUploading] = useState(false);
 
   const loadDocuments = async () => {
     try {
@@ -111,6 +117,36 @@ export default function KnowledgeBasePage() {
     }
   };
 
+  const handleUpload = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!uploadTitle.trim()) {
+      setError("Document title is required");
+      return;
+    }
+
+    if (!uploadFile) {
+      setError("Please select a file");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setError("");
+
+      await uploadKnowledgeDocument(uploadTitle, uploadFile);
+
+      setUploadTitle("");
+      setUploadFile(null);
+
+      await loadDocuments();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return <div className="p-6">Loading knowledge base...</div>;
   }
@@ -133,6 +169,41 @@ export default function KnowledgeBasePage() {
           Add Document
         </button>
       </div>
+
+      <form
+        onSubmit={handleUpload}
+        className="space-y-4 rounded-xl border bg-white p-6"
+      >
+        <div>
+          <h2 className="text-lg font-semibold">Upload Document</h2>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Upload a document to add it to the AI knowledge base.
+          </p>
+        </div>
+
+        <input
+          value={uploadTitle}
+          onChange={(e) => setUploadTitle(e.target.value)}
+          placeholder="Document title"
+          className="w-full rounded-lg border p-3"
+        />
+
+        <input
+          type="file"
+          accept=".txt,.md,.markdown,.pdf,.docx"
+          onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+          className="w-full rounded-lg border p-3"
+        />
+
+        <button
+          type="submit"
+          disabled={uploading}
+          className="rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
+        >
+          {uploading ? "Uploading..." : "Upload Document"}
+        </button>
+      </form>
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -219,6 +290,23 @@ export default function KnowledgeBasePage() {
               <p className="mt-4 text-xs text-gray-500">
                 Updated {new Date(document.updated_at).toLocaleString()}
               </p>
+              <span
+                className={`rounded-full px-2 py-1 text-xs ${
+                  document.status === "READY"
+                    ? "bg-green-100 text-green-700"
+                    : document.status === "FAILED"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {document.status}
+              </span>
+
+              {document.status === "FAILED" && (
+                <p className="mt-2 text-sm text-red-600">
+                  Processing failed. Open the document to inspect the error.
+                </p>
+              )}
             </div>
           ))}
         </div>

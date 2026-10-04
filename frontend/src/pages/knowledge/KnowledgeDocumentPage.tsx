@@ -89,6 +89,18 @@ export default function KnowledgeDocumentPage() {
           )}
         </div>
 
+        <div className="mt-2">
+          <span className="rounded-full border px-3 py-1 text-xs">
+            {document.status}
+          </span>
+        </div>
+
+        {document.status === "FAILED" && document.error_message && (
+          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700">
+            {document.error_message}
+          </div>
+        )}
+
         <button
           onClick={handleReindex}
           disabled={reindexing}
@@ -105,30 +117,31 @@ export default function KnowledgeDocumentPage() {
           {document.content}
         </pre>
       </section>
+      {document.status === "READY" && (
+        <section>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Chunks</h2>
 
-      <section>
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Chunks</h2>
+            <span className="text-sm text-gray-500">
+              {document.chunks.length} chunks
+            </span>
+          </div>
 
-          <span className="text-sm text-gray-500">
-            {document.chunks.length} chunks
-          </span>
-        </div>
+          <div className="mt-4 space-y-3">
+            {document.chunks.map((chunk) => (
+              <div key={chunk.id} className="rounded-xl border bg-white p-5">
+                <div className="text-xs font-medium text-gray-500">
+                  Chunk #{chunk.chunk_index + 1}
+                </div>
 
-        <div className="mt-4 space-y-3">
-          {document.chunks.map((chunk) => (
-            <div key={chunk.id} className="rounded-xl border bg-white p-5">
-              <div className="text-xs font-medium text-gray-500">
-                Chunk #{chunk.chunk_index + 1}
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-6">
+                  {chunk.content}
+                </p>
               </div>
-
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-6">
-                {chunk.content}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

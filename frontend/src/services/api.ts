@@ -20,7 +20,12 @@ export async function apiRequest<T>(
   const token = getAccessToken();
 
   const headers = new Headers(options.headers);
-  headers.set("Content-Type", "application/json");
+  // Don't set Content-Type for FormData.
+  // The browser automatically sets:
+  // multipart/form-data; boundary=...
+  if (!(options.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json");
+  }
 
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);

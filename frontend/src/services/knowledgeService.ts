@@ -54,3 +54,18 @@ export async function searchKnowledge(
     `/knowledge/search?q=${encodeURIComponent(query)}`,
   );
 }
+
+export async function uploadKnowledgeDocument(
+  title: string,
+  file: File,
+): Promise<KnowledgeDocument> {
+  const formData = new FormData();
+
+  formData.append("title", title);
+  formData.append("file", file);
+
+  return apiRequest<KnowledgeDocument>("/knowledge/documents/upload", {
+    method: "POST",
+    body: formData,
+  });
+}

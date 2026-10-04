@@ -66,13 +66,7 @@ class AgentToolRegistry:
                     ),
                     "parameters": {
                         "type": "object",
-                        "properties": {
-                            "ticket_id": {
-                                "type": "string",
-                                "description": "UUID of the ticket.",
-                            }
-                        },
-                        "required": ["ticket_id"],
+                        "properties": {},
                     },
                 },
             },
@@ -85,13 +79,7 @@ class AgentToolRegistry:
                     ),
                     "parameters": {
                         "type": "object",
-                        "properties": {
-                            "customer_id": {
-                                "type": "string",
-                                "description": "UUID of the customer.",
-                            }
-                        },
-                        "required": ["customer_id"],
+                        "properties": {}
                     },
                 },
             },
@@ -108,11 +96,15 @@ class AgentToolRegistry:
                         "properties": {
                             "order_id": {
                                 "type": "string",
-                                "description": "Order identifier.",
-                            }
+                                "description": "UUID of the order.",
+                            },
+                            "order_number": {
+                                "type": "string",
+                                "description": "Customer-facing order number.",
+                            },
                         },
-                        "required": ["order_id"],
-                    },
+                        "required": ["customer_id"],
+                    }
                 },
             },
             {
@@ -120,8 +112,8 @@ class AgentToolRegistry:
                 "function": {
                     "name": "get_subscription",
                     "description": (
-                        "Retrieve subscription information when a "
-                        "subscription ID is available."
+                        "Retrieve subscription information "
+                        "for the current customer."
                     ),
                     "parameters": {
                         "type": "object",
@@ -129,12 +121,11 @@ class AgentToolRegistry:
                             "subscription_id": {
                                 "type": "string",
                                 "description": (
-                                    "Subscription identifier."
+                                    "UUID of the subscription."
                                 ),
-                            }
+                            },
                         },
-                        "required": ["subscription_id"],
                     },
                 },
-            },
+            }
         ]

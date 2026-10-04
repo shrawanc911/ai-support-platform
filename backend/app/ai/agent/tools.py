@@ -9,6 +9,8 @@ from app.knowledge.service import KnowledgeService
 from app.models.ticket import Ticket
 from app.models.ticket_message import TicketMessage
 from app.models.user import User
+from app.orders.service import OrderService
+from app.subscriptions.service import SubscriptionService
 
 
 class AgentTool(ABC):
@@ -19,7 +21,7 @@ class AgentTool(ABC):
     async def execute(
         self,
         db: AsyncSession,
-        organization_id,
+        context,
         arguments: dict[str, Any],
     ) -> Any:
         raise NotImplementedError
@@ -39,7 +41,7 @@ class SearchKnowledgeTool(AgentTool):
     async def execute(
         self,
         db: AsyncSession,
-        organization_id,
+        context,
         arguments: dict[str, Any],
     ) -> Any:
         query = arguments.get("query")
@@ -49,7 +51,7 @@ class SearchKnowledgeTool(AgentTool):
 
         results = await self.rag.retrieve(
             db=db,
-            organization_id=organization_id,
+            organization_id=context.organization_id,
             query=query,
             limit=5,
         )
@@ -78,19 +80,20 @@ class SearchTicketHistoryTool(AgentTool):
     async def execute(
         self,
         db: AsyncSession,
-        organization_id,
+        context,
         arguments: dict[str, Any],
     ) -> Any:
 
-        ticket_id = arguments.get("ticket_id")
-
-        if not ticket_id:
-            raise ValueError("ticket_id is required")
+        if not context.ticket_id:
+            raise ValueError(
+                "No current ticket is available"
+            )
 
         ticket = await db.scalar(
             select(Ticket).where(
-                Ticket.id == ticket_id,
-                Ticket.organization_id == organization_id,
+                Ticket.id == context.ticket_id,
+                Ticket.organization_id
+                == context.organization_id,
             )
         )
 
@@ -124,12 +127,115 @@ class SearchTicketHistoryTool(AgentTool):
 
 
 class GetCustomerTool(AgentTool):
+
     name = "get_customer"
 
     description = (
-        "Get basic information about the customer associated "
-        "with the current ticket."
+        "Retrieve information about the customer "
+        "associated with the current ticket."
     )
+
+    async def execute(
+        self,
+        db: AsyncSession,
+        context,
+        arguments: dict[str, Any],
+    ) -> Any:
+
+        if not context.customer_id:
+            raise ValueError(
+                "No customer is associated with this ticket"
+            )
+
+        customer = await db.scalar(
+            select(User).where(
+                User.id == context.customer_id,
+                User.organization_id
+                == context.organization_id,
+            )
+        )
+
+        if not customer:
+            raise ValueError(
+                "Customer not found"
+            )
+
+        return {
+            "id": str(customer.id),
+            "name": customer.name,
+            "email": customer.email,
+            "is_active": customer.is_active,
+        }
+
+class GetOrderTool(AgentTool):
+
+    name = "get_order"
+
+    description = (
+        "Retrieve order information for the current customer."
+    )
+
+    def __init__(self):
+        self.service = OrderService()
+
+    async def execute(
+        self,
+        db: AsyncSession,
+        context,
+        arguments: dict[str, Any],
+    ) -> Any:
+
+        customer_id = context.customer_id
+
+        if not customer_id:
+            raise ValueError(
+                "customer_id is required"
+            )
+
+        order_id = arguments.get("order_id")
+        order_number = arguments.get("order_number")
+
+        if not order_id and not order_number:
+            raise ValueError(
+                "order_id or order_number is required"
+            )
+
+        order = await self.service.get_customer_order(
+            db=db,
+            organization_id=organization_id,
+            customer_id=customer_id,
+            order_id=order_id,
+            order_number=order_number,
+        )
+
+        if not order:
+            raise ValueError(
+                "Order not found"
+            )
+
+        return {
+            "id": str(order.id),
+            "order_number": order.order_number,
+            "status": order.status,
+            "total_amount": float(
+                order.total_amount
+            ),
+            "currency": order.currency,
+            "created_at": (
+                order.created_at.isoformat()
+            ),
+        }
+
+class GetSubscriptionTool(AgentTool):
+
+    name = "get_subscription"
+
+    description = (
+        "Retrieve subscription information for the current customer."
+    )
+
+    def __init__(self):
+        self.service = SubscriptionService()
 
     async def execute(
         self,
@@ -141,58 +247,36 @@ class GetCustomerTool(AgentTool):
         customer_id = arguments.get("customer_id")
 
         if not customer_id:
-            raise ValueError("customer_id is required")
+            raise ValueError(
+                "customer_id is required"
+            )
 
-        customer = await db.scalar(
-            select(User).where(
-                User.id == customer_id,
-                User.organization_id == organization_id,
+        subscription_id = arguments.get(
+            "subscription_id"
+        )
+
+        subscription = (
+            await self.service
+            .get_customer_subscription(
+                db=db,
+                organization_id=organization_id,
+                customer_id=customer_id,
+                subscription_id=subscription_id,
             )
         )
 
-        if not customer:
-            raise ValueError("Customer not found")
+        if not subscription:
+            raise ValueError(
+                "Subscription not found"
+            )
 
         return {
-            "id": str(customer.id),
-            "name": customer.name,
-            "email": customer.email,
-            "role": customer.role,
-            "is_active": customer.is_active,
+            "id": str(subscription.id),
+            "plan_name": subscription.plan_name,
+            "status": subscription.status,
+            "renewal_date": (
+                subscription.renewal_date.isoformat()
+                if subscription.renewal_date
+                else None
+            ),
         }
-
-class GetOrderTool(AgentTool):
-    name = "get_order"
-
-    description = (
-        "Retrieve order information when an order ID is available."
-    )
-
-    async def execute(
-        self,
-        db: AsyncSession,
-        organization_id,
-        arguments: dict[str, Any],
-    ) -> Any:
-        raise NotImplementedError(
-            "Order service is not implemented yet."
-        )
-
-
-class GetSubscriptionTool(AgentTool):
-    name = "get_subscription"
-
-    description = (
-        "Retrieve subscription information when a subscription "
-        "ID is available."
-    )
-
-    async def execute(
-        self,
-        db: AsyncSession,
-        organization_id,
-        arguments: dict[str, Any],
-    ) -> Any:
-        raise NotImplementedError(
-            "Subscription service is not implemented yet."
-        )

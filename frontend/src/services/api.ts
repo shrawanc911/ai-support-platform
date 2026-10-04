@@ -16,7 +16,7 @@ export function clearAccessToken() {
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
-) {
+):Promise<T> {
   const token = getAccessToken();
 
   const headers = new Headers(options.headers);

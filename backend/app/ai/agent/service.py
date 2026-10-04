@@ -3,6 +3,7 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.agent.context import AgentContext
 from app.ai.agent.prompts import SYSTEM_PROMPT
 from app.ai.agent.registry import AgentToolRegistry
 from app.ai.agent.schemas import (
@@ -29,7 +30,7 @@ class AIAgentService:
     async def execute_tool(
         self,
         db: AsyncSession,
-        organization_id,
+        context:AgentContext,
         tool_name: str,
         arguments: dict[str, Any],
     ) -> AgentToolResult:
@@ -39,7 +40,7 @@ class AIAgentService:
         try:
             data = await tool.execute(
                 db=db,
-                organization_id=organization_id,
+                contex=context,
                 arguments=arguments,
             )
 
@@ -61,7 +62,7 @@ class AIAgentService:
     async def run(
         self,
         db: AsyncSession,
-        organization_id,
+        context:AgentContext,
         user_message: str,
     ) -> AgentFinalResponse:
 
@@ -148,7 +149,7 @@ class AIAgentService:
 
                 result = await self.execute_tool(
                     db=db,
-                    organization_id=organization_id,
+                    context=context,
                     tool_name=tool_name,
                     arguments=arguments,
                 )

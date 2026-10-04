@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from app.ai.agent.context import AgentContext
 from app.ai.agent.service import AIAgentService
 from app.core.dependencies import get_current_user
 from app.core.dependencies import get_db
@@ -39,6 +40,12 @@ async def run_agent(
             status_code=404,
             detail="Ticket not found",
         )
+
+    context = AgentContext(
+        organization_id=current_user.organization_id,
+        ticket_id=ticket.id,
+        customer_id=ticket.customer_id,
+    )
     service = AIAgentService()
 
     user_message = f"""
@@ -59,7 +66,7 @@ async def run_agent(
 
     return await service.run(
         db=db,
-        organization_id=current_user.organization_id,
+        context=context,
         user_message=user_message
     )
 

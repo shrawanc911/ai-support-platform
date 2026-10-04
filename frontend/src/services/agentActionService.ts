@@ -1,5 +1,5 @@
 import { apiRequest } from "./api";
-import type { AgentAction } from "../types/agentAction";
+import type { AgentAction, AuditLog } from "../types/agentAction";
 
 export async function getAgentActions(): Promise<AgentAction[]> {
   return apiRequest<AgentAction[]>("/ai/agent/actions", {
@@ -31,4 +31,10 @@ export async function rejectAgentAction(
       reason,
     }),
   });
+}
+
+export async function getAgentActionAudit(
+  actionId: string,
+): Promise<AuditLog[]> {
+  return apiRequest<AuditLog[]>(`/ai/agent/actions/${actionId}/audit`);
 }

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { AgentAction } from "../../types/agentAction";
 import {
   approveAgentAction,
   rejectAgentAction,
 } from "../../services/agentActionService";
+import AgentActionTimeline from "./AgentActionTimeline";
+import { useAgentActionEvents } from "../../hooks/useAgentActionEvents";
 
 interface Props {
   action: AgentAction;
@@ -12,6 +14,31 @@ interface Props {
 
 export default function AgentActionCard({ action, onUpdated }: Props) {
   const [loading, setLoading] = useState(false);
+
+  const handleActionEvent = useCallback(
+    (event: any) => {
+      const status = event?.event;
+
+      if (
+        status === "APPROVED" ||
+        status === "PROCESSING" ||
+        status === "EXECUTED" ||
+        status === "FAILED"
+      ) {
+        onUpdated?.({
+          ...action,
+          status,
+          error_message: event?.data?.error ?? action.error_message,
+        });
+      }
+    },
+    [action, onUpdated],
+  );
+
+  useAgentActionEvents({
+    actionId: action.id,
+    onEvent: handleActionEvent,
+  });
 
   async function handleApprove() {
     try {
@@ -98,6 +125,7 @@ export default function AgentActionCard({ action, onUpdated }: Props) {
           {action.error_message && <p>{action.error_message}</p>}
         </div>
       )}
+      <AgentActionTimeline actionId={action.id} />
     </div>
   );
 }

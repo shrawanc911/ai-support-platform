@@ -29,3 +29,17 @@ export interface AgentAction {
   approved_at: string | null;
   executed_at: string | null;
 }
+
+export interface AuditLog {
+  id: string;
+  organization_id: string;
+  ticket_id: string | null;
+  action_id: string | null;
+  actor_id: string | null;
+
+  event_type: string;
+  details: Record<string, unknown>;
+  message: string | null;
+
+  created_at: string;
+}

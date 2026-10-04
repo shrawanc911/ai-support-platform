@@ -43,3 +43,18 @@ class AgentActionRejectRequest(BaseModel):
         min_length=3,
         max_length=1000,
     )
+
+class AuditLogResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    organization_id: UUID
+    ticket_id: UUID | None
+    action_id: UUID | None
+    actor_id: UUID | None
+
+    event_type: str
+    details: dict
+    message: str | None
+
+    created_at: datetime

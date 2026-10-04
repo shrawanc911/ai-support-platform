@@ -10,8 +10,11 @@ from app.ai.agent.action_queue import (
     AGENT_ACTION_QUEUE_NAME,
     requeue_agent_action,
 )
-from app.core.redis import redis_client
+from app.ai.agent.action_service import create_audit_log
+from app.ai.agent.events import publish_action_event
 from app.core.database import AsyncSessionLocal
+from app.core.redis import redis_client
+from app.core.audit_enums import AuditEventType
 from app.models.agent_action import AgentAction
 
 
@@ -73,6 +76,27 @@ async def process_action(action_id: str):
 
             await db.commit()
 
+            await create_audit_log(
+                db=db,
+                organization_id=action.organization_id,
+                ticket_id=action.ticket_id,
+                action_id=action.id,
+                actor_id=action.approved_by_id,
+                event_type=AuditEventType.ACTION_FAILED,
+                details={
+                    "attempt": action.attempts,
+                    "error": str(exc),
+                },
+                message="Agent action execution failed.",
+            )
+
+            await publish_action_event(
+                action.id,
+                "FAILED",
+                {
+                    "error": action.error_message,
+                },
+            )
             print(
                 f"[ACTION WORKER] Action {action_id} "
                 "exceeded maximum attempts"
@@ -84,6 +108,27 @@ async def process_action(action_id: str):
         action.status = AgentActionStatus.PROCESSING
         action.attempts += 1
         action.started_at = datetime.now(timezone.utc)
+
+        await create_audit_log(
+            db=db,
+            organization_id=action.organization_id,
+            ticket_id=action.ticket_id,
+            action_id=action.id,
+            actor_id=action.approved_by_id,
+            event_type=AuditEventType.ACTION_PROCESSING,
+            details={
+                "attempt": action.attempts,
+            },
+            message="Agent action processing started.",
+        )
+
+        await publish_action_event(
+            action.id,
+            "PROCESSING",
+            {
+                "attempt": action.attempts,
+            },
+        )
 
         await db.commit()
 
@@ -97,6 +142,31 @@ async def process_action(action_id: str):
             print(
                 f"[ACTION WORKER] Action {action_id} "
                 "executed successfully"
+            )
+
+            action.status = AgentActionStatus.EXECUTED
+            action.executed_at = datetime.utcnow()
+            action.error_message = None
+
+            await create_audit_log(
+                db=db,
+                organization_id=action.organization_id,
+                ticket_id=action.ticket_id,
+                action_id=action.id,
+                actor_id=action.approved_by_id,
+                event_type=AuditEventType.ACTION_EXECUTED,
+                details={
+                    "attempt": action.attempts,
+                },
+                message="Agent action executed successfully.",
+            )
+
+            await publish_action_event(
+                action.id,
+                "EXECUTED",
+                {
+                    "executed_at": action.executed_at.isoformat(),
+                },
             )
 
         except Exception as exc:

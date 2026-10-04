@@ -8,6 +8,8 @@ from app.ai.agent.action_enums import (
     AgentActionStatus,
     AgentActionType,
 )
+from app.core.audit import create_audit_log
+from app.core.audit_enums import AuditEventType
 from app.models.agent_action import AgentAction
 from app.models.ticket import Ticket
 from app.models.user import User, UserRole
@@ -45,9 +47,22 @@ class AgentActionService:
         )
 
         db.add(action)
+
+        await create_audit_log(
+            db=db,
+            organization_id=organization_id,
+            ticket_id=ticket_id,
+            action_id=action.id,
+            actor_id=requested_by_id,
+            event_type=AuditEventType.ACTION_CREATED,
+            details={
+                "action_type": action_type.value,
+                "payload": payload,
+            },
+            message="AI agent proposed an action.",
+        )
         await db.commit()
         await db.refresh(action)
-
         return action
 
     async def get_action(
@@ -90,6 +105,20 @@ class AgentActionService:
         action.status = AgentActionStatus.APPROVED
         action.approved_by_id = approver.id
         action.approved_at = datetime.utcnow()
+
+        await create_audit_log(
+            db=db,
+            organization_id=action.organization_id,
+            ticket_id=action.ticket_id,
+            action_id=action.id,
+            actor_id=approver.id,
+            event_type=AuditEventType.ACTION_APPROVED,
+            details={
+                "action_type": action.action_type.value,
+                "payload": action.payload,
+            },
+            message="Agent action approved by human reviewer.",
+        )
 
         from app.core.outbox import create_outbox_event
         from app.core.outbox_enums import OutboxEventType
@@ -135,6 +164,19 @@ class AgentActionService:
         action.approved_by_id = approver.id
         action.approved_at = datetime.utcnow()
         action.error_message = reason
+
+        await create_audit_log(
+            db=db,
+            organization_id=action.organization_id,
+            ticket_id=action.ticket_id,
+            action_id=action.id,
+            actor_id=approver.id,
+            event_type=AuditEventType.ACTION_REJECTED,
+            details={
+                "reason": reason,
+            },
+            message="Agent action rejected by human reviewer.",
+        )
 
         await db.commit()
         await db.refresh(action)

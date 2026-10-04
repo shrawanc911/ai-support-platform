@@ -84,6 +84,7 @@ async def list_actions(
 @router.post(
     "/{action_id}/approve",
     response_model=AgentActionResponse,
+    status_code=202
 )
 async def approve_action(
     action_id: UUID,
@@ -114,9 +115,6 @@ async def approve_action(
             action=action,
             approver=current_user,
         )
-
-        from app.ai.agent.action_queue import enqueue_agent_action
-        await enqueue_agent_action(action.id)
 
         return action
 

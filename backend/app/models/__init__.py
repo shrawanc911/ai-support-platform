@@ -10,5 +10,6 @@ from app.models.ai_source import AISource
 from app.models.order import Order
 from app.models.subscription import Subscription
 from app.models.agent_action import AgentAction
+from app.models.outbox_event import OutboxEvent
 
-__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis", "KnowledgeDocument", "KnowledgeChunk", "AISource", "Order", "Subscription", "AgentAction"]
+__all__ = ["Organization","User","Ticket","TicketMessage","AIJob","TicketAIAnalysis", "KnowledgeDocument", "KnowledgeChunk", "AISource", "Order", "Subscription", "AgentAction", "OutboxEvent"]

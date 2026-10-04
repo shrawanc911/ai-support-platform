@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     AI_AGENT_MAX_TOOL_CALLS: int = 5
     AI_AGENT_MAX_ITERATIONS: int = 6
 
+    OUTBOX_MAX_ATTEMPTS: int = 10
+
 
     class Config:
         env_file = ".env"

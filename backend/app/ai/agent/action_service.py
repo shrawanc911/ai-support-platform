@@ -91,6 +91,18 @@ class AgentActionService:
         action.approved_by_id = approver.id
         action.approved_at = datetime.utcnow()
 
+        from app.core.outbox import create_outbox_event
+        from app.core.outbox_enums import OutboxEventType
+
+        await create_outbox_event(
+            db=db,
+            organization_id=action.organization_id,
+            event_type=OutboxEventType.AGENT_ACTION_APPROVED,
+            payload={
+                "action_id": str(action.id),
+            },
+        )
+
         await db.commit()
         await db.refresh(action)
 

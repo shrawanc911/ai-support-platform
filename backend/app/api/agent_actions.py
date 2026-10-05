@@ -67,6 +67,7 @@ async def list_actions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
         require_roles(
+            UserRole.CUSTOMER,
             UserRole.AGENT,
             UserRole.MANAGER,
             UserRole.ADMIN,

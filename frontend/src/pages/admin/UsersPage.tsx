@@ -45,7 +45,7 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
+      <div className="flex min-h-75 items-center justify-center">
         <div className="flex items-center gap-3 text-sm text-gray-500">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
           Loading users...
@@ -108,7 +108,7 @@ export default function UsersPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px]">
+          <table className="w-full min-w-190">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">

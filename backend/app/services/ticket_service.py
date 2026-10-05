@@ -43,9 +43,20 @@ class TicketService:
             description=data.description
         )
 
+        
+
         db.add(ticket)
         await db.commit()
         await db.refresh(ticket)
+        message = TicketMessage(
+            ticket_id=ticket.id,
+            message_type ="SYSTEM",
+            content=f"Hello {current_user.name}, can you share me more details about this ticket?"
+        )
+
+        db.add(message)
+        await db.commit()
+        await db.refresh(message)
 
         return ticket
 

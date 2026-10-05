@@ -26,7 +26,7 @@ from app.models.knowledge_document import (
 async def process_document(
     document_id: str,
 ) -> None:
-
+    print("Knowledge worker process processing document id:",document_id)
     async with AsyncSessionLocal() as db:
 
         document = await db.scalar(

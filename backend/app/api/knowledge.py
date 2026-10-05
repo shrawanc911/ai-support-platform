@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Annotated
-from fastapi import APIRouter, Depends, Query, HTTPException, status, File, UploadFile
+from fastapi import APIRouter, Depends, Query, HTTPException, status, File, UploadFile, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from pathlib import Path
 from uuid import uuid4
@@ -208,7 +208,7 @@ async def reindex_document(
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def upload_document(
-    title: str,
+    title: str = Form(...),
     file: UploadFile = File(...),
     current_user: Annotated[
         User,
@@ -282,7 +282,7 @@ async def upload_document(
 
     await db.commit()
     await db.refresh(document)
-
+    print("ENQUEUE")
     await enqueue_document_ingestion(
         document.id
     )

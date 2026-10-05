@@ -21,3 +21,5 @@ async def enqueue_document_ingestion(
         KNOWLEDGE_INGESTION_QUEUE,
         json.dumps(payload),
     )
+
+    print("Data added:",payload)

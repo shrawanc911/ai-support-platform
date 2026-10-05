@@ -18,14 +18,6 @@ service = OrganizationService()
 
 @router.get("/get_list")
 async def get_list(
-    current_user: Annotated[
-        User,
-        Depends(
-            require_roles(
-               UserRole.ADMIN 
-            )
-        )
-    ],
     db:AsyncSession=Depends(get_db),
 ):
     return await service.get_organizations(db)
@@ -35,7 +27,18 @@ async def get_list(
     response_model=OrganizationResponse,
     status_code=status.HTTP_201_CREATED
 )
-async def create_organization(data: OrganizationCreate,db: AsyncSession = Depends(get_db)):
+async def create_organization(
+    data: OrganizationCreate,
+    current_user: Annotated[
+        User,
+        Depends(
+            require_roles(
+               UserRole.ADMIN 
+            )
+        )
+    ],
+    db: AsyncSession = Depends(get_db)
+):
     try:
         return await service.create(db,data)
     except ValueError as exc:

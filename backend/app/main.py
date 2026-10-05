@@ -15,6 +15,7 @@ from app.api.redis_test import router as redis_router
 from app.api.knowledge import router as knowledge_router
 from app.api.ai_agent import router as ai_agent_router
 from app.api.agent_actions import router as agent_actions_router
+from app.api.dashboard import router as dashboard_router
 
 app = FastAPI(
     title="AI Support Platform API",
@@ -46,3 +47,4 @@ app.include_router(redis_router)
 app.include_router(knowledge_router)
 app.include_router(ai_agent_router)
 app.include_router(agent_actions_router)
+app.include_router(dashboard_router)

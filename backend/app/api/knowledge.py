@@ -5,8 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pathlib import Path
 from uuid import uuid4
 
-from app.core.database import get_db
-from app.core.dependencies import get_current_user,Depends,require_roles
+from app.core.dependencies import (
+    get_current_user,
+    Depends,
+    require_roles,
+    get_db
+)
 from app.knowledge.schemas import (
     KnowledgeDocumentCreate,
     KnowledgeDocumentResponse,

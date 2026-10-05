@@ -1,15 +1,15 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum as SQLEnum, ForeignKey, JSON, String, Text
+from sqlalchemy import DateTime, Enum as SQLEnum, ForeignKey, JSON, String, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.ai.agent.policy_enums import ActionRisk
 from app.ai.agent.action_enums import (
     AgentActionStatus,
     AgentActionType,
 )
-from sqlalchemy import Integer
+from app.models.base import Base
 
 
 class AgentAction(Base):
@@ -81,6 +81,16 @@ class AgentAction(Base):
     started_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
+    )
+
+    risk: Mapped[ActionRisk] = mapped_column(
+        SQLEnum(ActionRisk),
+        nullable=False,
+    )
+
+    policy_reason: Mapped[str] = mapped_column(
+        String(1000),
+        nullable=False,
     )
 
     created_at: Mapped[datetime] = mapped_column(

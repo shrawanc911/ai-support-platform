@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.enums import AIJobStatus
+from app.models.ai_job import AIJobStatus
 from app.ai.events import publish_ai_job_event
 from app.ai.queue import AI_QUEUE_NAME
 

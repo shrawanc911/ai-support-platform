@@ -13,6 +13,7 @@ interface GetTicketsParams {
   status?: TicketStatus;
   priority?: TicketPriority;
   search?: string;
+  organization_id?: string;
 }
 
 interface CreateTicket {

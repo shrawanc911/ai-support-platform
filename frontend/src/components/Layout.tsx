@@ -31,7 +31,6 @@ export default function Layout({ children }: LayoutProps) {
     user?.role ?? "",
   );
   const canAccessAnalytics = ["MANAGER", "ADMIN"].includes(user?.role ?? "");
-  const canAccessTickets = ["ADMIN"].includes(user?.role ?? "");
 
   const mainNavigation: NavigationItem[] = [
     {
@@ -44,22 +43,14 @@ export default function Layout({ children }: LayoutProps) {
       path: "/tickets",
       icon: Ticket,
     },
-    {
-      label: "Customers",
-      path: "/customers",
-      icon: Users,
-    },
+    // {
+    //   label: "Customers",
+    //   path: "/customers",
+    //   icon: Users,
+    // },
   ];
 
   const managementNavigation: NavigationItem[] = [];
-
-  if (canAccessTickets) {
-    managementNavigation.push({
-      label: "Tickets",
-      path: "/admin/tickets",
-      icon: Ticket,
-    });
-  }
 
   if (canAccessKnowledge) {
     managementNavigation.push({
@@ -69,13 +60,13 @@ export default function Layout({ children }: LayoutProps) {
     });
   }
 
-  if (canAccessAnalytics) {
-    managementNavigation.push({
-      label: "Analytics",
-      path: "/analytics",
-      icon: BarChart3,
-    });
-  }
+  // if (canAccessAnalytics) {
+  //   managementNavigation.push({
+  //     label: "Analytics",
+  //     path: "/analytics",
+  //     icon: BarChart3,
+  //   });
+  // }
 
   if (isAdmin) {
     managementNavigation.push({
@@ -84,11 +75,11 @@ export default function Layout({ children }: LayoutProps) {
       icon: Building2,
     });
 
-    managementNavigation.push({
-      label: "Users",
-      path: "/admin/users",
-      icon: UserRound,
-    });
+    // managementNavigation.push({
+    //   label: "Users",
+    //   path: "/admin/users",
+    //   icon: UserRound,
+    // });
   }
 
   return (

@@ -20,9 +20,7 @@ import { getAgentActions } from "../services/agentActionService";
 import type { AgentAction } from "../types/agentAction";
 
 export default function TicketDetailPage() {
-  const { ticketId } = useParams<{
-    ticketId: string;
-  }>();
+  const { organizationId, ticketId } = useParams();
   const { user } = useAuth();
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [messages, setMessages] = useState<TicketMessage[]>([]);
@@ -83,23 +81,23 @@ export default function TicketDetailPage() {
     setMessages((current) => [...current, newMessage]);
   }
 
-  async function handleAIAnalysis() {
-    if (!ticketId) {
-      return;
-    }
-    try {
-      setAiLoading(true);
-      setAiError(null);
+  // async function handleAIAnalysis() {
+  //   if (!ticketId) {
+  //     return;
+  //   }
+  //   try {
+  //     setAiLoading(true);
+  //     setAiError(null);
 
-      const result = await analyzeTicket(ticketId);
+  //     const result = await analyzeTicket(ticketId);
 
-      setAiAnalysis(result);
-    } catch (error) {
-      setAiError(error instanceof Error ? error.message : "AI analysis failed");
-    } finally {
-      setAiLoading(false);
-    }
-  }
+  //     setAiAnalysis(result);
+  //   } catch (error) {
+  //     setAiError(error instanceof Error ? error.message : "AI analysis failed");
+  //   } finally {
+  //     setAiLoading(false);
+  //   }
+  // }
 
   const handleAnalyze = async () => {
     if (!ticket) {
@@ -165,7 +163,15 @@ export default function TicketDetailPage() {
 
   return (
     <div>
-      <Link to="/tickets">← Back to tickets</Link>
+      <Link
+        to={
+          organizationId
+            ? `/organizations/${organizationId}/tickets`
+            : "/tickets"
+        }
+      >
+        ← Back to tickets
+      </Link>
 
       <TicketHeader ticket={ticket} />
       {agentActions.map((action) => (

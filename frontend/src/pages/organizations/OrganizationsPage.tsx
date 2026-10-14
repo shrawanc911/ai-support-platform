@@ -105,10 +105,9 @@ export default function OrganizationsPage() {
           ) : (
             <div className="divide-y divide-gray-100">
               {organizations.map((organization) => (
-                <Link
+                <div
                   key={organization.id}
-                  to={`/organizations/${organization.id}/users`}
-                  className="group flex items-center justify-between gap-4 px-5 py-5 transition hover:bg-indigo-50/40 sm:px-6"
+                  className="group flex flex-col justify-between gap-4 px-5 py-5 transition hover:bg-indigo-50/40 sm:flex-row sm:items-center sm:px-6"
                 >
                   <div className="flex min-w-0 items-center gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-lg font-bold text-indigo-700">
@@ -119,9 +118,11 @@ export default function OrganizationsPage() {
                       <p className="truncate font-semibold text-gray-900 group-hover:text-indigo-700">
                         {organization.name}
                       </p>
+
                       <p className="mt-1 truncate text-sm text-gray-500">
                         {organization.slug}
                       </p>
+
                       <p className="mt-1 text-xs text-gray-400">
                         Created{" "}
                         {new Date(organization.created_at).toLocaleDateString()}
@@ -129,12 +130,26 @@ export default function OrganizationsPage() {
                     </div>
                   </div>
 
-                  <span className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition group-hover:border-indigo-200 group-hover:bg-white group-hover:text-indigo-700">
-                    <span className="hidden sm:inline">Manage users</span>
-                    <span className="sm:hidden">Users</span>
-                    <span aria-hidden="true">→</span>
-                  </span>
-                </Link>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      to={`/organizations/${organization.id}/users`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:text-indigo-700"
+                    >
+                      <span>👥</span>
+                      <span>Manage users</span>
+                      <span aria-hidden="true">→</span>
+                    </Link>
+
+                    <Link
+                      to={`/organizations/${organization.id}/tickets`}
+                      className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-700"
+                    >
+                      <span>🎫</span>
+                      <span>Manage tickets</span>
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  </div>
+                </div>
               ))}
             </div>
           )}

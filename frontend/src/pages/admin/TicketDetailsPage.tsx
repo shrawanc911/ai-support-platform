@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { getTicketAIAnalysis } from "../../services/ticketService";
 import type { TicketAIAnalysis } from "../../types/ticketAIAnalysis";
 
@@ -23,9 +23,8 @@ function AnalysisCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function TicketDetailsPage() {
-  const { ticketId } = useParams<{ ticketId: string }>();
-  const navigate = useNavigate();
+export function TicketDetailsPage() {
+  const { ticketId, organizationId } = useParams();
 
   const [analysis, setAnalysis] = useState<TicketAIAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
@@ -77,12 +76,12 @@ export default function TicketDetailsPage() {
   if (error) {
     return (
       <main className="space-y-4 p-6">
-        <button
-          onClick={() => navigate("/admin/tickets")}
+        <Link
+          to={`/organizations/${organizationId}/tickets`}
           className="text-sm font-medium text-blue-600"
         >
           ← Back to tickets
-        </button>
+        </Link>
 
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
           {error}
@@ -94,9 +93,9 @@ export default function TicketDetailsPage() {
   if (!analysis) {
     return (
       <main className="space-y-4 p-6">
-        <button onClick={() => navigate("/admin/tickets")}>
+        <Link to={`/organizations/${organizationId}/tickets`}>
           ← Back to tickets
-        </button>
+        </Link>
         <p>No AI analysis found for this ticket.</p>
       </main>
     );
@@ -104,12 +103,12 @@ export default function TicketDetailsPage() {
 
   return (
     <main className="min-h-screen space-y-6 bg-slate-50 p-4 sm:p-6 lg:p-8">
-      <button
-        onClick={() => navigate("/admin/tickets")}
+      <Link
+        to={`/organizations/${organizationId}/tickets`}
         className="text-sm font-semibold text-blue-600 hover:text-blue-800"
       >
         ← Back to tickets
-      </button>
+      </Link>
 
       <header>
         <p className="text-sm font-medium text-blue-600">

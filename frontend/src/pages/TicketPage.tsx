@@ -8,7 +8,6 @@ import {
   Ticket as TicketIcon,
   SlidersHorizontal,
   X,
-  Loader2,
 } from "lucide-react";
 
 import { createTicket, getTickets } from "../services/ticketService";

@@ -1,7 +1,9 @@
 from uuid import UUID
-from fastapi import HTTPException
+from typing import Annotated
+from fastapi import HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.dependencies import require_roles
 
 from app.core.security import hash_password
 from app.models.user import User, UserRole
@@ -16,11 +18,13 @@ class AdminUserService:
 
     async def list_users(
         self,
+        organizationId: UUID,
         db: AsyncSession,
     ) -> list[User]:
 
         result = await db.scalars(
             select(User)
+            .where(User.organization_id==organizationId)
             .order_by(User.created_at.desc())
         )
 
@@ -63,10 +67,12 @@ class AdminUserService:
     async def update_user(
         self,
         db: AsyncSession,
-        current_user:User,
+        organization_id:UUID,
         user_id: UUID,
+        current_user:User,
         data: AdminUserUpdate,
     ) -> User | None:
+    
         if user_id == current_user.id:
             if data.role is not None:
                 raise HTTPException(
@@ -84,7 +90,7 @@ class AdminUserService:
         user = await db.scalar(
             select(User).where(
                 User.id == user_id,
-                User.organization_id == current_user.organization_id,
+                User.organization_id == organization_id,
             )
         )
 

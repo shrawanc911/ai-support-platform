@@ -27,10 +27,10 @@ router = APIRouter(
 
 service = TicketService()
 
-@router.get("/x/{ticket_id}")
-async def x(ticket_id:UUID,db:AsyncSession = Depends(get_db)):
-    await enqueue_ticket_analysis(uuid4(),ticket_id,"TICKET_ANALYSIS_QUEUE")
-    return "Done"
+# @router.get("/x/{ticket_id}")
+# async def x(ticket_id:UUID,db:AsyncSession = Depends(get_db)):
+#     await enqueue_ticket_analysis(uuid4(),ticket_id,"TICKET_ANALYSIS_QUEUE")
+#     return "Done"
 
 @router.post(
     "",
@@ -149,3 +149,8 @@ async def list_tickets(
         "limit":limit,
         "pages":pages
     }
+
+@router.get("/admin/{ticket_id}/get_ai_analysis")
+async def get_ticket_ai_analysis(ticket_id: UUID,current_user: Annotated[User,Depends(require_roles(UserRole.ADMIN))], db: AsyncSession = Depends(get_db)):
+    result = await db.scalar(select(TicketAIAnalysis).where(TicketAIAnalysis.ticket_id == ticket_id).order_by(TicketAIAnalysis.created_at.desc()).limit(1))
+    return result

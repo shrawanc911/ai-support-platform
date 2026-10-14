@@ -5,6 +5,7 @@ import type {
   TicketPriority,
   TicketStatus,
 } from "../types/ticket";
+import type { TicketAIAnalysis } from "../types/ticketAIAnalysis";
 
 interface GetTicketsParams {
   page?: number;
@@ -62,4 +63,10 @@ export async function analyzeTicket(ticketId: string) {
   return apiRequest(`/tickets/${ticketId}/ai/analyze`, {
     method: "POST",
   });
+}
+
+export async function getTicketAIAnalysis(ticketId: string) {
+  return apiRequest<TicketAIAnalysis>(
+    `/tickets/admin/${ticketId}/get_ai_analysis`,
+  );
 }

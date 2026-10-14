@@ -16,7 +16,7 @@ from app.core.dependencies import get_db
 
 
 router = APIRouter(
-    prefix="/admin/users",
+    prefix="/admin",
     tags=["Admin Users"],
 )
 
@@ -51,11 +51,12 @@ async def create_user(
         )
 
 @router.get(
-    "",
+    "/organizations/{organizationId}/users",
     response_model=list[AdminUserResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_users_list(
+    organizationId:UUID,
     current_user: Annotated[
         User,
         Depends(require_roles(UserRole.ADMIN)),
@@ -63,7 +64,7 @@ async def get_users_list(
     db: AsyncSession = Depends(get_db),
 ) -> list[AdminUserResponse]:
     try:
-        result = await service.list_users(db)
+        result = await service.list_users(organizationId,db)
         return result
 
     except ValueError as exc:
@@ -71,3 +72,29 @@ async def get_users_list(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         )
+
+@router.patch("/organization/{organizationId}/user/{userId}/update_user")
+async def update_user(organizationId:UUID,userId:UUID,data:AdminUserUpdate,current_user:Annotated[User,Depends(require_roles(UserRole.ADMIN,UserRole.MANAGER))], db:AsyncSession = Depends(get_db)):
+    try:
+        user = await service.update_user(
+            db,
+            organization_id=organizationId,
+            user_id=userId,
+            current_user=current_user,
+            data=data,
+        )
+        if user is None:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found in this organization",
+            )
+        return user
+    except HTTPException:
+        raise
+    except Exception as exc:
+        # Log the exception in production.
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update user",
+        ) from exc
+

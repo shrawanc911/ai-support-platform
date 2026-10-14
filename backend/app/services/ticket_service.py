@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import select , func , or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +15,7 @@ from app.models.ticket_message import (
 
 from app.core.exceptions import InvalidTicketTransitionError
 from app.services.ticket_workflow import validate_status_transition
+from app.ai.queue import enqueue_ticket_analysis
 
 class TicketService:
     async def create(self, db:AsyncSession,data: TicketCreate,current_user: User) -> Ticket:
@@ -57,6 +58,8 @@ class TicketService:
         db.add(message)
         await db.commit()
         await db.refresh(message)
+        
+        await enqueue_ticket_analysis(uuid4(),ticket.id,"TICKET_ANALYSIS_QUEUE")
 
         return ticket
 

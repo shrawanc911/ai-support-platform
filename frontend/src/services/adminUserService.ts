@@ -8,8 +8,8 @@ export interface CreateUserRequest {
   role: UserRole;
 }
 
-export async function getUsers(): Promise<User[]> {
-  return apiRequest("/admin/users");
+export async function getUsers(organizationId: string): Promise<User[]> {
+  return apiRequest(`/admin/organizations/${organizationId}/users`);
 }
 
 export async function createUser(data: CreateUserRequest): Promise<User> {
@@ -20,14 +20,18 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
 }
 
 export async function updateUser(
+  organizationId: string,
   userId: string,
   data: {
     role?: UserRole;
     is_active?: boolean;
   },
 ): Promise<User> {
-  return apiRequest(`/admin/users/${userId}`, {
-    method: "PATCH",
-    body: JSON.stringify(data),
-  });
+  return apiRequest(
+    `/admin/organization/${organizationId}/user/${userId}/update_user`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    },
+  );
 }

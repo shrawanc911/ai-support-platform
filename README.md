@@ -45,3 +45,7 @@ Frontend:
 cd frontend
 npm install
 npm run dev
+
+```
+Subject - Payment accepted multiple time
+Description - I have paid money for first time but it has displayed failed so again i have paid money still showing failed and my money is gone for 2 times now what should i do

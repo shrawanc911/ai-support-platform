@@ -14,6 +14,7 @@ import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganizationPage from "./pages/organizations/CreateOrganizationPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import TicketsPage from "./pages/admin/TicketsPage";
+import TicketDetailsPage from "./pages/admin/TicketDetailsPage";
 
 export default function AppRoutes() {
   return (
@@ -33,8 +34,15 @@ export default function AppRoutes() {
             <Route path="/tickets" element={<TicketPage />} />
             <Route path="/tickets/:ticketId" element={<TicketDetailPage />} />
             <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
-              <Route path="/admin/users" element={<UsersPage />} />
+              <Route
+                path="/organizations/:organizationId/users"
+                element={<UsersPage />}
+              />
               <Route path="/admin/tickets" element={<TicketsPage />} />
+              <Route
+                path="/admin/tickets/:ticketId"
+                element={<TicketDetailsPage />}
+              />
             </Route>
             <Route
               element={

@@ -1,3 +1,4 @@
+import json
 from openai import AsyncOpenAI
 
 from app.ai.prompts import (
@@ -24,7 +25,7 @@ class OpenRouterProvider:
     ) -> TicketAIAnalysisResult:
 
         prompt = build_ticket_prompt(subject=subject,description=description,rag_context=rag_context)
-
+        
         response = await self.client.chat.completions.create(
             model=settings.OPENROUTER_MODEL,
             messages=[
@@ -48,9 +49,12 @@ class OpenRouterProvider:
             raise ValueError(
                 "AI returned an empty response"
             )
-        return TicketAIAnalysisResult.model_validate_json(
-            content
-        )
+        try:
+            return TicketAIAnalysisResult.model_validate_json(content)
+        except ValueError as exc:
+            raise ValueError(
+                f"AI returned an invalid analysis: {exc}"
+            ) from exc
 
     async def agent_completion(
         self,

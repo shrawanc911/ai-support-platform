@@ -1,14 +1,24 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from typing import Annotated
 from fastapi import APIRouter, Depends,HTTPException,status , Query
 from app.core.exceptions import InvalidTicketTransitionError
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi import HTTPException
 from app.core.dependencies import get_db,get_current_user,require_roles
 from app.schemas.ticket import (TicketCreate, TicketUpdate, TicketResponse,TicketListResponse)
 from app.services.ticket_service import TicketService
 from app.models.ticket import (TicketPriority, TicketStatus)
 from app.models.user import User, UserRole
+from app.models.ticket_ai_analysis import TicketAIAnalysis
+from app.core.config import settings
+from app.ai.queue import enqueue_ticket_analysis
+
+
+from sqlalchemy import select
+
+from app.ai.providers.openrouter_provider import OpenRouterProvider
+from app.ai.service import TicketAIService
+from app.models.ticket import Ticket
 
 router = APIRouter(
     prefix="/tickets",
@@ -16,6 +26,11 @@ router = APIRouter(
 )
 
 service = TicketService()
+
+@router.get("/x/{ticket_id}")
+async def x(ticket_id:UUID,db:AsyncSession = Depends(get_db)):
+    await enqueue_ticket_analysis(uuid4(),ticket_id,"TICKET_ANALYSIS_QUEUE")
+    return "Done"
 
 @router.post(
     "",

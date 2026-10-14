@@ -108,7 +108,8 @@ class TicketService:
             search : str | None = None
     )-> tuple[list[Ticket],int]:
         # Base filters
-        filters = [Ticket.organization_id == current_user.organization_id]
+        # filters = [Ticket.organization_id == current_user.organization_id]
+        filters = []
 
         if current_user.role == UserRole.CUSTOMER:
             filters.append(

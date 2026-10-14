@@ -30,7 +30,7 @@ class TicketAIAnalysis(Base):
     )
 
     job_id: Mapped[UUID] = mapped_column(
-        ForeignKey("ai_jobs.id"),
+        # ForeignKey("ai_jobs.id"),
         nullable=False,
         unique=True,
         index=True,
@@ -72,11 +72,6 @@ class TicketAIAnalysis(Base):
         nullable=False,
     )
 
-    reasoning: Mapped[str] = mapped_column(
-        Text,
-        nullable=False,
-    )
-
     model: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
@@ -96,9 +91,4 @@ class TicketAIAnalysis(Base):
 
     ticket: Mapped["Ticket"] = relationship(
         back_populates="ai_analyses"
-    )
-
-    sources = relationship(
-        "AISource",
-        cascade="all, delete-orphan",
     )

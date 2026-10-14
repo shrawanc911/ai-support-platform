@@ -39,7 +39,6 @@ class TicketAIAnalysisResult(BaseModel):
         min_length=1,
         max_length=2000,
     )
-    source: list[AISourceResponse]
 
 class AIJobResponse(BaseModel):
     model_config = ConfigDict(

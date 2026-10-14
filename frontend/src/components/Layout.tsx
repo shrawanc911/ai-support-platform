@@ -31,6 +31,7 @@ export default function Layout({ children }: LayoutProps) {
     user?.role ?? "",
   );
   const canAccessAnalytics = ["MANAGER", "ADMIN"].includes(user?.role ?? "");
+  const canAccessTickets = ["ADMIN"].includes(user?.role ?? "");
 
   const mainNavigation: NavigationItem[] = [
     {
@@ -51,6 +52,14 @@ export default function Layout({ children }: LayoutProps) {
   ];
 
   const managementNavigation: NavigationItem[] = [];
+
+  if (canAccessTickets) {
+    managementNavigation.push({
+      label: "Tickets",
+      path: "/admin/tickets",
+      icon: Ticket,
+    });
+  }
 
   if (canAccessKnowledge) {
     managementNavigation.push({

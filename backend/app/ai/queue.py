@@ -10,6 +10,7 @@ AI_QUEUE_NAME = "ai_ticket_analysis"
 async def enqueue_ticket_analysis(
     job_id: UUID,
     ticket_id: UUID,
+    QUEUE_NAME: str = AI_QUEUE_NAME
 ):
     payload = {
         "job_id": str(job_id),
@@ -17,6 +18,6 @@ async def enqueue_ticket_analysis(
     }
 
     await redis_client.rpush(
-        AI_QUEUE_NAME,
+        QUEUE_NAME,
         json.dumps(payload),
     )
